@@ -887,20 +887,157 @@ function mountAssistant(W){
 const WALLS=[['ardesia','Ardesia'],['mare','Mare'],['ulivo','Ulivo']];
 function setWall(k){desk.className='wall-'+k;lsSet('sow-wall',k);}
 async function hashPin(p){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('sow:'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return'x'+[...('sow:'+p)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7).toString(16);}}
-async function exportBackup(withApps){
+const codeCache={};
+async function buildBackup(withApps){
   await ready;const o={formato:'sistema-operativo-web',versione:1,creato:new Date().toISOString(),dati:{}};
   for(const c of COLS)o.dati[c]=Object.fromEntries(S.maps[c]);
-  if(withApps){o.codice={};for(const id of S.maps.apps.keys()){try{o.codice[id]=await readAppCode(id);}catch(e){}}}
-  if(await saveFile('backup-sistema-'+isoDay(new Date())+'.json',JSON.stringify(o)))toast('Backup salvato.');}
-async function importBackup(file){
-  let o;try{o=JSON.parse(await file.text());}catch(e){toast('Il file non è un backup valido.');return;}
-  if(!o||o.formato!=='sistema-operativo-web'||!o.dati){toast('Il file non è un backup di questo sistema.');return;}
+  if(withApps){o.codice={};for(const[id,m]of S.maps.apps){const k=id+':'+m.ver;if(codeCache[k]==null){try{codeCache[k]=await readAppCode(id);}catch(e){continue;}}o.codice[id]=codeCache[k];}}
+  return o;}
+const stamp=()=>{const d=new Date();return isoDay(d)+'_'+pad(d.getHours())+'-'+pad(d.getMinutes())+'-'+pad(d.getSeconds());};
+async function exportBackup(withApps){
+  const o=await buildBackup(withApps);
+  if(await saveFile('backup-sistema-'+stamp()+'.json',JSON.stringify(o)))toast('Backup salvato.');}
+async function importBackup(file){importBackupText(await file.text());}
+async function importBackupText(text){
+  let o;try{o=JSON.parse(text);}catch(e){toast('Il file non è un backup valido.');return false;}
+  if(!o||o.formato!=='sistema-operativo-web'||!o.dati){toast('Il file non è un backup di questo sistema.');return false;}
   let n=0;for(const c of COLS){for(const[id,v]of Object.entries(o.dati[c]||{})){
     if(c==='apps'){const code=o.codice&&o.codice[id];if(!code)continue;const ver=(v.ver||1);try{v.chunks=await writeAppCode(id,ver,code);}catch(e){continue;}}
     await put(c,id,v).catch(()=>{});n++;}}
-  toast('Ripristinati '+n+' elementi dal backup.');}
+  toast('Ripristinati '+n+' elementi dal backup.');return true;}
+
+/* ===================== Backup automatico su Google Drive ===================== */
+const GD={cfg:jGet('sow-drive',{}),busy:false,timer:null,lastHash:lsGet('sow-drive-hash',''),status:''};
+const GD_KEEP=10,GD_GAP=10*60000,GD_QUIET=15000;
+const gdSave=()=>jSet('sow-drive',GD.cfg);
+function strHash(s){let x=0x811c9dc5;for(let i=0;i<s.length;i++){x^=s.charCodeAt(i);x=Math.imul(x,16777619);}return(x>>>0).toString(16)+':'+s.length;}
+function dataSig(){const o={};for(const c of COLS)o[c]=Object.fromEntries(S.maps[c]);return strHash(JSON.stringify(o));}
+const qEsc=(s)=>String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+function b64ToText(b){const bin=atob(String(b).replace(/\s/g,''));const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return new TextDecoder().decode(u);}
+function decodeDownload(p){
+  if(typeof p==='string'){const t=p.trim();if(t.startsWith('{'))return t;try{return b64ToText(t);}catch(e){return t;}}
+  if(p&&typeof p==='object'){for(const k of['content','data','base64Content','contents','body','text']){if(typeof p[k]==='string')return decodeDownload(p[k]);}
+    let best='';for(const v of Object.values(p))if(typeof v==='string'&&v.length>best.length)best=v;if(best)return decodeDownload(best);}
+  throw{code:'bad_download'};}
+/* Versione claude.ai: usa il Google Drive già collegato all'account */
+const DRIVE_MCP={
+  async m(){const m=await cap('mcp');if(!m)throw{code:'no_mcp'};return m;},
+  async call(tool,input){const m=await this.m();const r=await m.callTool('Google Drive',tool,input,{cache:false});return r.payload;},
+  async folders(parent){const p=await this.call('search_files',{query:"mimeType = 'application/vnd.google-apps.folder' and parentId = '"+qEsc(parent)+"' and trashed = false",pageSize:100,excludeContentSnippets:true});
+    return((p&&p.files)||[]).map(f=>({id:f.id,name:f.title||f.name})).sort((a,b)=>String(a.name).localeCompare(String(b.name),'it'));},
+  async upload(name,json,folder){const m=await this.m();let fa=false;try{fa=!!(await m.listTools()).fileArgs;}catch(e){}
+    const input={title:name,parentId:folder,contentMimeType:'application/json',disableConversionToGoogleType:true};
+    if(fa)input.base64Content={$file:{data:new Blob([json],{type:'application/json'}),name:'backup.json',type:'application/json'}};
+    else{if(new Blob([json]).size>900000)throw{code:'too_large'};input.textContent=json;}
+    await m.callTool('Google Drive','create_file',input,{cache:false});},
+  async list(folder){const p=await this.call('search_files',{query:"parentId = '"+qEsc(folder)+"' and title contains 'backup-sistema-' and trashed = false",pageSize:100,excludeContentSnippets:true});
+    return((p&&p.files)||[]).map(f=>({id:f.id,name:f.title||f.name,time:f.createdTime})).sort((a,b)=>String(b.name).localeCompare(String(a.name)));},
+  trash(id){return this.call('trash_file',{fileId:id});},
+  async download(id){return decodeDownload(await this.call('download_file_content',{fileId:id}));}
+};
+/* Versione GitHub: collegamento diretto a Google con i codici del progetto Google Cloud */
+const DRIVE_G={tok:null,exp:0,
+  cfg(){return jGet('sow-gcfg',{});},
+  loadScript(src){return new Promise((res,rej)=>{const ex=document.querySelector('script[src="'+src+'"]');if(ex){if(ex.dataset.ok)return res();ex.addEventListener('load',()=>res());ex.addEventListener('error',()=>rej({code:'script'}));return;}
+    const s=h('script',{src,async:true});s.onload=()=>{s.dataset.ok='1';res();};s.onerror=()=>rej({code:'script'});document.head.append(s);});},
+  preload(){if(this.cfg().clientId){this.loadScript('https://accounts.google.com/gsi/client').catch(()=>{});if(this.cfg().apiKey)this.loadScript('https://apis.google.com/js/api.js').catch(()=>{});}},
+  async token(interactive){const c=this.cfg();if(!c.clientId)throw{code:'config'};if(this.tok&&Date.now()<this.exp-60000)return this.tok;
+    await this.loadScript('https://accounts.google.com/gsi/client');
+    return new Promise((res,rej)=>{let tc;try{tc=google.accounts.oauth2.initTokenClient({client_id:c.clientId,scope:'https://www.googleapis.com/auth/drive.file',
+      callback:(r)=>{if(r.error){rej({code:'auth'});return;}this.tok=r.access_token;this.exp=Date.now()+(+r.expires_in||3600)*1000;lsSet('sow-g-ok','1');res(this.tok);},
+      error_callback:()=>rej({code:'auth'})});}catch(e){rej({code:'config'});return;}
+      tc.requestAccessToken({prompt:lsGet('sow-g-ok','')?'':'consent'});});},
+  async api(method,url,body,headers){const t=await this.token(false);const r=await fetch(url,{method,headers:Object.assign({Authorization:'Bearer '+t},headers||{}),body});
+    if(r.status===401){this.tok=null;throw{code:'auth'};}if(r.status===404)throw{code:'not_found'};if(!r.ok)throw{code:'http',status:r.status};return r;},
+  async upload(name,json,folder){const b='sow'+uid();const meta={name,parents:[folder],mimeType:'application/json'};
+    const body=new Blob(['--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(meta)+'\r\n--'+b+'\r\nContent-Type: application/json\r\n\r\n',json,'\r\n--'+b+'--'],{type:'multipart/related; boundary='+b});
+    await this.api('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',body,{'Content-Type':'multipart/related; boundary='+b});},
+  async list(folder){const q=encodeURIComponent("'"+qEsc(folder)+"' in parents and name contains 'backup-sistema-' and trashed = false");
+    const r=await this.api('GET','https://www.googleapis.com/drive/v3/files?q='+q+'&fields=files(id,name,createdTime)&pageSize=100&orderBy=name%20desc');const j=await r.json();
+    return(j.files||[]).map(f=>({id:f.id,name:f.name,time:f.createdTime}));},
+  trash(id){return this.api('PATCH','https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(id),JSON.stringify({trashed:true}),{'Content-Type':'application/json'});},
+  async download(id){const r=await this.api('GET','https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(id)+'?alt=media');return r.text();},
+  async pickFolder(){const c=this.cfg();if(!c.clientId||!c.apiKey)throw{code:'config'};const t=await this.token(true);
+    await this.loadScript('https://apis.google.com/js/api.js');await new Promise((res)=>gapi.load('picker',res));
+    return new Promise((res)=>{const view=new google.picker.DocsView(google.picker.ViewId.FOLDERS).setSelectFolderEnabled(true).setIncludeFolders(true).setMimeTypes('application/vnd.google-apps.folder');
+      const p=new google.picker.PickerBuilder().addView(view).setOAuthToken(t).setDeveloperKey(c.apiKey).setAppId(String(c.clientId).split('-')[0]).setLocale('it').setTitle('Scegli la cartella per i backup')
+        .setCallback(d=>{if(d.action===google.picker.Action.PICKED){const f=d.docs[0];res({id:f.id,name:f.name});}else if(d.action===google.picker.Action.CANCEL)res(null);}).build();p.setVisible(true);});}
+};
+const DRIVE=IN_CLAUDE?DRIVE_MCP:DRIVE_G;
+function gdErr(e){const c=e&&e.code;return({
+  needs_reauth:'Google Drive va ricollegato: Impostazioni di claude.ai › Connettori.',
+  server_not_connected:'Google Drive non è collegato a claude.ai: aggiungilo da Impostazioni › Connettori.',
+  selection_required:'Scegli quale Google Drive usare nella richiesta mostrata da claude.ai.',
+  not_in_manifest:'L’accesso a Google Drive per questa pagina non è stato consentito.',
+  approval_required:'Serve la tua approvazione per usare Google Drive: premi “Esegui ora”.',
+  no_mcp:'Google Drive non è raggiungibile da questa vista.',
+  too_large:'Il backup è troppo grande da inviare da qui.',
+  tool_error:'Google Drive ha rifiutato l’operazione: la cartella esiste ancora?',
+  not_found:'Cartella non trovata su Drive: scegline un’altra.',
+  config:'Mancano i codici di Google (ID client e chiave API).',
+  auth:'Accesso a Google scaduto o negato: premi “Esegui ora” per ricollegarti.',
+  script:'Impossibile contattare Google: controlla la connessione.',
+  bad_download:'Il file scaricato da Drive non è leggibile.'
+}[c])||'Connessione con Google Drive non riuscita: riprovo alla prossima modifica.';}
+function gdRefreshUI(){const W=wins.find(w=>w.app==='settings');if(W)W.refresh();}
+function gdSchedule(){if(!GD.cfg.folderId||GD.cfg.off||S.mode==='loading'||(S.mode==='online'&&!S.synced))return;
+  clearTimeout(GD.timer);GD.timer=setTimeout(()=>gdRun(false),Math.max(GD_QUIET,(GD.cfg.last||0)+GD_GAP-Date.now()));}
+subs.add(gdSchedule);
+async function gdRun(manual){
+  if(GD.busy||!GD.cfg.folderId)return;const sig=dataSig();if(!manual&&sig===GD.lastHash)return;
+  GD.busy=true;GD.status='Backup in corso…';gdRefreshUI();
+  try{const o=await buildBackup(true);await DRIVE.upload('backup-sistema-'+stamp()+'.json',JSON.stringify(o),GD.cfg.folderId);
+    GD.cfg.last=Date.now();GD.cfg.lastErr='';gdSave();GD.lastHash=sig;lsSet('sow-drive-hash',sig);
+    try{const list=await DRIVE.list(GD.cfg.folderId);for(const f of list.slice(GD_KEEP))await DRIVE.trash(f.id).catch(()=>{});}catch(e){}
+    if(manual)toast('Backup salvato su Google Drive.');}
+  catch(e){GD.cfg.lastErr=gdErr(e);gdSave();if(manual)toast(GD.cfg.lastErr);
+    else if(Date.now()-(GD.cfg.lastNotif||0)>3600000){GD.cfg.lastNotif=Date.now();gdSave();pushNotif('Backup su Google Drive non riuscito',GD.cfg.lastErr);}}
+  GD.busy=false;GD.status='';gdRefreshUI();}
+/* GitHub: rinnova l'accesso a Google sfruttando un tocco dell'utente, così il backup automatico non si blocca */
+document.addEventListener('pointerdown',()=>{if(!IN_CLAUDE&&GD.cfg.folderId&&!GD.cfg.off&&lsGet('sow-g-ok','')&&(!DRIVE_G.tok||Date.now()>DRIVE_G.exp-300000))DRIVE_G.token(false).catch(()=>{});},true);
+function driveSection(W){
+  const st=W.state;const c=GD.cfg;const out=[h('h3',{},'Backup automatico su Google Drive')];
+  if(!IN_CLAUDE){const g=DRIVE_G.cfg();
+    const cid=h('input',{class:'field',id:'g-client',value:g.clientId||'',placeholder:'ID client (…apps.googleusercontent.com)','aria-label':'ID client di Google',autocomplete:'off',style:'flex:1 1 280px'});
+    const key=h('input',{class:'field',id:'g-key',value:g.apiKey||'',placeholder:'Chiave API','aria-label':'Chiave API di Google',autocomplete:'off',style:'flex:1 1 200px'});
+    out.push(h('p',{},g.clientId?'Codici di Google inseriti.':'Serve una registrazione gratuita su Google Cloud, una volta sola. I passaggi sono nel file README, sezione “Backup su Google Drive”.'),
+      h('div',{class:'line'},cid,key,h('button',{class:'btn',onclick:()=>{jSet('sow-gcfg',{clientId:cid.value.trim(),apiKey:key.value.trim()});DRIVE_G.tok=null;DRIVE_G.preload();toast('Codici salvati.');W.refresh(true);}},'Salva codici')));}
+  out.push(h('p',{},c.folderId?('Cartella: '+(c.folderName||'scelta')+' · '+(c.off?'in pausa':'attivo, salva qualche secondo dopo ogni modifica (al massimo ogni 10 minuti)')+' · ultimo backup: '+(c.last?fmtDate(c.last):'non ancora')+' · tiene le ultime 10 copie, app comprese.'):'Scegli la cartella di Drive dove salvare i backup.'));
+  if(GD.status)out.push(h('p',{style:'color:var(--accent)'},GD.status));
+  if(c.lastErr&&!GD.status)out.push(h('p',{style:'color:var(--danger)'},c.lastErr));
+  const choose=async()=>{if(IN_CLAUDE){st.browse={path:[{id:'root',name:'Il mio Drive'}],items:null,err:''};loadFolders(W);W.refresh(true);return;}
+    try{const f=await DRIVE_G.pickFolder();if(f){GD.cfg.folderId=f.id;GD.cfg.folderName=f.name;GD.cfg.lastErr='';GD.cfg.off=false;gdSave();GD.lastHash='';toast('Cartella scelta: '+f.name+'.');gdRun(true);}}
+    catch(e){toast(gdErr(e));}W.refresh(true);};
+  const btns=[h('button',{class:'btn'+(c.folderId?'':' pri'),onclick:choose},ic('folder'),c.folderId?'Cambia cartella':'Scegli cartella')];
+  if(c.folderId)btns.push(h('button',{class:'btn',disabled:GD.busy,onclick:()=>gdRun(true)},ic('upload'),'Esegui ora'),
+    h('button',{class:'btn',onclick:()=>{st.restore={items:null,ask:null,err:''};loadBackups(W);W.refresh(true);}},ic('restore'),'Ripristina da Drive'),
+    h('button',{class:'btn',onclick:()=>{GD.cfg.off=!GD.cfg.off;gdSave();if(!GD.cfg.off)gdSchedule();W.refresh(true);}},GD.cfg.off?'Riprendi':'Metti in pausa'));
+  out.push(h('div',{class:'line'},btns));
+  if(st.browse){const b=st.browse,cur=b.path[b.path.length-1];
+    out.push(h('div',{class:'am-form',style:'margin-top:10px'},
+      h('div',{class:'crumbs'},b.path.map((p,i)=>[i?h('span',{'aria-hidden':'true',style:'color:var(--muted)'},'›'):null,h('button',{onclick:()=>{b.path=b.path.slice(0,i+1);loadFolders(W);}},p.name)])),
+      b.err?h('p',{style:'color:var(--danger)'},b.err):b.items==null?h('p',{},'Caricamento cartelle…'):
+        b.items.length?h('div',{class:'rows',style:'padding:0;max-height:220px;overflow:auto'},b.items.map(f=>h('div',{class:'row',style:'grid-template-columns:28px minmax(0,1fr)'},h('span',{class:'ic'},ic('folder')),h('button',{class:'nm',onclick:()=>{b.path.push(f);loadFolders(W);}},f.name)))):h('p',{},'Nessuna sottocartella.'),
+      h('div',{class:'line',style:'margin:0'},h('button',{class:'btn pri',onclick:()=>{GD.cfg.folderId=cur.id;GD.cfg.folderName=cur.name;GD.cfg.lastErr='';GD.cfg.off=false;gdSave();GD.lastHash='';st.browse=null;toast('Cartella scelta: '+cur.name+'.');gdRun(true);W.refresh(true);}},'Usa “'+cur.name+'”'),
+        h('button',{class:'btn',onclick:()=>{st.browse=null;W.refresh(true);}},'Annulla')),
+      h('p',{class:'note-box'},'Per una cartella nuova, creala prima in Google Drive e poi aggiorna questo elenco riaprendolo.')));}
+  if(st.restore){const r=st.restore;
+    out.push(h('div',{class:'am-form',style:'margin-top:10px'},h('h3',{},'Backup su Drive'),
+      r.err?h('p',{style:'color:var(--danger)'},r.err):r.items==null?h('p',{},'Caricamento elenco…'):!r.items.length?h('p',{},'Nessun backup in questa cartella.'):
+      h('div',{class:'rows',style:'padding:0'},r.items.map(f=>h('div',{class:'row',style:'grid-template-columns:28px minmax(0,1fr) auto'},h('span',{class:'ic doc'},ic('doc')),
+        h('span',{class:'nm',style:'cursor:default'},f.name.replace('backup-sistema-','').replace('.json','').replace('_',' ore ').replace(/-(\d\d)-(\d\d)$/,':$1:$2')),
+        r.ask===f.id?h('div',{class:'ask'},'Ripristinare?',h('button',{class:'btn dan',onclick:async()=>{r.ask=null;GD.status='Ripristino in corso…';W.refresh(true);
+            try{const txt=await DRIVE.download(f.id);await importBackupText(txt);}catch(e){toast(gdErr(e));}GD.status='';st.restore=null;W.refresh(true);}},'Sì'),h('button',{class:'btn',onclick:()=>{r.ask=null;W.refresh(true);}},'No'))
+        :h('button',{class:'btn',onclick:()=>{r.ask=f.id;W.refresh(true);}},'Ripristina')))),
+      h('div',{class:'line',style:'margin:0'},h('button',{class:'btn',onclick:()=>{st.restore=null;W.refresh(true);}},'Chiudi'))));}
+  if(IN_CLAUDE)out.push(h('p',{class:'note-box',style:'margin-top:8px'},'La cartella si sceglie una volta per ogni dispositivo. Al primo uso claude.ai chiede il permesso di usare Google Drive.'));
+  return h('section',{},out);}
+async function loadFolders(W){const b=W.state.browse;if(!b)return;b.items=null;b.err='';W.refresh(true);
+  try{b.items=await DRIVE_MCP.folders(b.path[b.path.length-1].id);}catch(e){b.err=gdErr(e);}W.refresh(true);}
+async function loadBackups(W){const r=W.state.restore;if(!r)return;
+  try{r.items=await DRIVE.list(GD.cfg.folderId);}catch(e){r.err=gdErr(e);}W.refresh(true);}
 function mountSettings(W){
-  const st=W.state={pinMode:false,ask:null};
+  const st=W.state={pinMode:false,ask:null,browse:null,restore:null};if(!IN_CLAUDE)DRIVE_G.preload();
   const bk=h('input',{type:'file',accept:'.json,application/json',class:'vh',tabindex:'-1'});
   bk.addEventListener('change',()=>{const f=bk.files[0];bk.value='';if(f)importBackup(f);});
   W.refresh=(force)=>{const a=document.activeElement;if(!force&&a&&W.body.contains(a)&&a.tagName==='INPUT')return;
@@ -916,7 +1053,8 @@ function mountSettings(W){
         h('div',{class:'line'},pin1,h('button',{class:'btn pri',onclick:async()=>{const v=pin1.value.trim();if(!/^\d{4,6}$/.test(v)){toast('Il PIN deve avere da 4 a 6 cifre.');return;}lsSet('sow-pin',await hashPin(v));toast('PIN impostato.');W.refresh(true);}},hasPin?'Cambia PIN':'Imposta PIN'),
           hasPin?h('button',{class:'btn dan',onclick:()=>{lsDel('sow-pin');toast('PIN rimosso.');W.refresh(true);}},'Rimuovi'):null),
         hasPin?h('div',{class:'line'},h('span',{style:'font-size:13.5px'},'Blocco automatico'),autoSel,h('button',{class:'btn',onclick:lockNow},ic('lock'),'Blocca ora')):null),
-      h('section',{},h('h3',{},'Backup'),h('p',{},'Salva tutto in un unico file (documenti, note, agenda, elenco app) o ripristina da un file salvato. Il ripristino aggiunge e sovrascrive, non cancella.'),
+      driveSection(W),
+      h('section',{},h('h3',{},'Backup su file'),h('p',{},'Salva tutto in un unico file (documenti, note, agenda, elenco app) o ripristina da un file salvato. Il ripristino aggiunge e sovrascrive, non cancella.'),
         h('div',{class:'line'},h('button',{class:'btn',onclick:()=>exportBackup(false)},ic('down'),'Salva backup'),h('button',{class:'btn',onclick:()=>exportBackup(true)},ic('down'),'Backup con codice app'),h('button',{class:'btn',onclick:()=>bk.click()},ic('upload'),'Ripristina'))),
       h('section',{},h('h3',{},'Salvataggio e permessi'),h('dl',{class:'kv'},
         h('dt',{},'Modalità'),h('dd',{},modo),h('dt',{},'Il tuo accesso'),h('dd',{},roleLabel()),
@@ -1032,6 +1170,7 @@ setWall(lsGet('sow-wall','ardesia'));renderDesks();renderBell();renderSync();ren
 if(lsGet('sow-pin',''))lockNow();
 if(!narrow.matches)openApp('files');
 ready.then(()=>setTimeout(checkReminders,1500));
+if(!IN_CLAUDE&&GD.cfg.folderId)DRIVE_G.preload();
 if(!IN_CLAUDE&&'serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script>
 

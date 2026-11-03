@@ -1,6 +1,6 @@
 // Copia locale dei file del sistema, così si apre anche senza connessione.
 // Quando pubblichi una versione nuova di index.html, aumenta il numero qui sotto.
-const VERSIONE = 'sistema-os-v1';
+const VERSIONE = 'sistema-os-v2';
 const FILE = ['./', 'index.html', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
