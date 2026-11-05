@@ -52,16 +52,16 @@ button:disabled{opacity:.45;cursor:default}
 svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 
 #os{height:100%;display:grid;grid-template-rows:1fr auto;position:relative}
-#desk{position:relative;overflow:hidden;min-height:0}
+#desk{position:relative;overflow:hidden;min-height:0;z-index:0;isolation:isolate}
 .wall-ardesia{background:repeating-linear-gradient(115deg,rgba(255,255,255,.03) 0 2px,transparent 2px 10px),radial-gradient(120% 90% at 85% 5%,#56616c 0%,#2f363e 55%,#1d2227 100%)}
 .wall-mare{background:radial-gradient(60% 30% at 70% 38%,rgba(255,240,210,.35),transparent 70%),linear-gradient(180deg,#a9cbd6 0%,#6aa2b6 36%,#2b6c86 37%,#174a63 70%,#0e3247 100%)}
 .wall-ulivo{background:radial-gradient(70% 60% at 20% 85%,#7c8a59 0%,#4c5737 55%,#30381f 100%)}
 #desk.drop::after{content:"Rilascia qui i file per salvarli nell’archivio";position:absolute;inset:12px;border:2px dashed var(--wall-fg);border-radius:14px;display:grid;place-items:center;color:var(--wall-fg);font-weight:600;background:rgba(0,0,0,.35);z-index:4000;pointer-events:none}
 
-#icons{position:absolute;inset:0 auto 0 0;right:0;padding-block:18px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:repeat(auto-fill,88px);grid-auto-rows:98px;gap:6px;align-content:start;justify-content:start;overflow:auto}
-@media (min-width:980px){#icons{right:300px}}
-.dicon{display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border:0;border-radius:10px;background:transparent;color:var(--wall-fg);text-align:center;font-size:12.5px;font-weight:500;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,.7);overflow:hidden}
+#icons{position:absolute;inset:0}
+.dicon{position:absolute;width:88px;touch-action:none;user-select:none;-webkit-user-select:none;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 4px;border:0;border-radius:10px;background:transparent;color:var(--wall-fg);text-align:center;font-size:12.5px;font-weight:500;line-height:1.2;text-shadow:0 1px 3px rgba(0,0,0,.7);overflow:hidden}
 .dicon:hover{background:rgba(255,255,255,.12)}
+.dicon.drag{background:rgba(255,255,255,.2);z-index:2;cursor:grabbing}
 .tile{width:48px;height:48px;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.93);color:#1f4f63;box-shadow:0 4px 12px rgba(0,0,0,.3);flex:none;font-weight:700;font-size:17px;text-shadow:none;letter-spacing:.02em}
 .tile svg.i{width:26px;height:26px}
 .tile.sm{width:30px;height:30px;border-radius:8px;font-size:12px;box-shadow:none}
@@ -97,11 +97,75 @@ svg.i{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-widt
 .win.moving iframe{pointer-events:none}
 .grip{position:absolute;right:0;bottom:0;width:18px;height:18px;cursor:nwse-resize;touch-action:none;background:linear-gradient(135deg,transparent 55%,var(--line) 55% 62%,transparent 62% 72%,var(--line) 72% 79%,transparent 79%)}
 .win.max .grip{display:none}
-#snap{position:absolute;border-radius:12px;background:rgba(95,179,207,.22);border:2px solid rgba(95,179,207,.85);pointer-events:none;z-index:3999;transition:all .08s}
-@media (max-width:760px){
-  .win{left:0!important;top:0!important;width:100%!important;height:100%!important;border-radius:0;border:0;min-width:0}
-  .grip,.win-btn.maxb{display:none}
-}
+#snap{position:absolute;border-radius:12px;background:rgba(95,179,207,.22);border:2px solid rgba(95,179,207,.85);pointer-events:none;z-index:2147483000;transition:all .08s}
+@media (max-width:760px){.win{min-width:240px}.win-head{height:46px}.win-btn{width:38px;height:34px}.grip{width:26px;height:26px}}
+.win.ontop .win-head::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:var(--accent)}
+.help{padding:16px 18px;display:flex;flex-direction:column;gap:18px;max-width:640px}
+.help h3{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.help .ver{display:flex;align-items:baseline;gap:10px}
+.help .ver b{font-family:var(--mono);font-size:30px;font-weight:500}
+.rel{border-left:2px solid var(--line);padding:2px 0 2px 14px;margin-bottom:12px}
+.rel.cur{border-color:var(--accent)}
+.rel header{display:flex;gap:10px;align-items:baseline;font-weight:600}
+.rel header span{font-family:var(--mono);font-size:12px;color:var(--muted);font-weight:400;font-variant-numeric:tabular-nums}
+.rel ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.55}
+.help p,.help li{font-size:13.5px;line-height:1.55}
+.help p{margin:0;color:var(--muted);max-width:62ch}
+.shield{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--win-2)}
+.shield svg.i{color:var(--ok);width:22px;height:22px}
+.vw{display:flex;flex-direction:column;flex:1;min-height:0}
+.vw-body{flex:1;min-height:0;overflow:auto;background:var(--win-2);display:flex;flex-direction:column;align-items:center;gap:12px;padding:12px}
+.vw-body canvas{background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);flex:none}
+.vw-body img{max-width:100%;height:auto;background:#fff;flex:none}
+.vw-body img.full{max-width:none}
+.vw-body video{max-width:100%;max-height:100%;background:#000}
+.vw-body pre{margin:0;align-self:stretch;white-space:pre-wrap;overflow-wrap:anywhere;font-family:var(--mono);font-size:12.5px;line-height:1.5;background:var(--win);padding:14px;border-radius:8px}
+.vw-body iframe.docx{align-self:stretch;flex:1;min-height:420px;border:0;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.vw-body.tblmode{padding:0;align-items:stretch}
+.tbl-wrap{overflow:auto;flex:1;min-height:0;background:var(--win)}
+.tbl{border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.tbl td,.tbl th{border:1px solid var(--line);padding:4px 8px;white-space:nowrap;max-width:320px;overflow:hidden;text-overflow:ellipsis;text-align:left}
+.tbl th{position:sticky;top:0;background:var(--win-2);font-weight:600;color:var(--muted);z-index:1}
+.tbl td.rn{position:sticky;left:0;background:var(--win-2);color:var(--muted);text-align:right}
+.tabs-s{display:flex;gap:4px;padding:6px 10px;border-top:1px solid var(--line);overflow-x:auto;flex:none;background:var(--win)}
+.tabs-s button{border:1px solid var(--line);background:var(--win);border-radius:6px;padding:4px 10px;font-size:12.5px;white-space:nowrap}
+.tabs-s button.cur{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.finfo{margin:auto;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center;color:var(--muted);font-size:13.5px;max-width:42ch}
+.finfo .big{width:64px;height:64px;border-radius:16px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-family:var(--mono);font-weight:600;text-transform:uppercase}
+.finfo b{color:var(--fg);font-size:15px;overflow-wrap:anywhere}
+.br{display:flex;flex-direction:column;flex:1;min-height:0}
+.br-tabs{display:flex;gap:2px;padding:6px 6px 0;background:var(--win-2);overflow-x:auto;flex:none;scrollbar-width:none}
+.br-tab{display:flex;align-items:center;gap:4px;max-width:200px;flex:none;padding:0 2px 0 10px;height:32px;border:1px solid var(--line);border-bottom:0;border-radius:8px 8px 0 0;background:var(--win-2);font-size:12.5px}
+.br-tab.cur{background:var(--win)}
+.br-tab .t{border:0;background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;padding:0;font-size:12.5px}
+.br-tab .ibtn{width:24px;height:24px}
+.br-bar{display:flex;gap:2px;align-items:center;padding:6px 8px;border-bottom:1px solid var(--line);flex:none;background:var(--win)}
+.br-bar form{flex:1;min-width:0;display:flex}
+.br-bar input{flex:1;min-width:0;height:34px;border:1px solid var(--line);border-radius:999px;padding:0 14px;background:var(--win-2)}
+.br-bar .ibtn.on{color:var(--warn)}
+.br-bar a.ibtn{text-decoration:none}
+.br-note{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 10px;font-size:12px;color:var(--muted);background:var(--win-2);border-bottom:1px solid var(--line);flex:none}
+.br-note a{color:var(--accent);font-weight:600}
+.br-view{flex:1;min-height:0;display:flex;flex-direction:column;position:relative;background:var(--win)}
+.br-view iframe{flex:1;border:0;width:100%;background:#fff}
+.br-page{flex:1;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:16px}
+.br-page h3{margin:0;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.br-card{margin:auto;max-width:46ch;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;font-size:13.5px;color:var(--muted);line-height:1.5}
+.br-card b{color:var(--fg);font-size:15px;overflow-wrap:anywhere}
+.bm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.bm{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:10px;background:var(--win);min-width:0;overflow:hidden}
+.bm .go{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px 8px;border:0;background:transparent;color:inherit;text-decoration:none;font-size:12.5px;min-width:0}
+.bm .go:hover{background:var(--win-2)}
+.bm .go b{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
+.bm .go small{color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bm .bm-act{display:flex;justify-content:center;gap:2px;border-top:1px solid var(--line)}
+.bm .bm-act .ibtn.on{color:var(--accent)}
+.hist{display:flex;flex-direction:column;gap:2px}
+.hist .go{display:flex;align-items:center;gap:10px;padding:8px 10px;border:0;background:transparent;border-radius:8px;text-align:left;font-size:13px;color:inherit;text-decoration:none;min-width:0}
+.hist .go:hover{background:var(--win-2)}
+.hist .go span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.hist .go small{color:var(--muted);margin-left:auto;flex:none;font-variant-numeric:tabular-nums}
+a.linkbtn{display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 18px;border-radius:9px;background:var(--accent);color:var(--accent-fg);font-weight:600;text-decoration:none;font-size:14px}
 .pop{position:absolute;background:var(--win);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);padding:6px;z-index:10;min-width:210px;display:flex;flex-direction:column;gap:1px}
 .pop button{display:flex;align-items:center;gap:10px;border:0;background:transparent;text-align:left;padding:8px 10px;border-radius:7px;font-size:13px}
 .pop button:hover{background:var(--win-2)}
@@ -348,7 +412,7 @@ const ICONS={
   upload:'<path d="M12 16V4M7 8.5 12 4l5 4.5M4.5 15v4.5h15V15"/>', down:'<path d="M12 4v12M7 11.5l5 4.5 5-4.5M4.5 19.5h15"/>',
   restore:'<path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v4.5h4.5"/>', tile:'<rect x="3.5" y="4" width="7.5" height="16" rx="1.5"/><rect x="13" y="4" width="7.5" height="7" rx="1.5"/><rect x="13" y="13" width="7.5" height="7" rx="1.5"/>',
   layers:'<path d="M5 9h11v11H5z"/><path d="M8 6h11v11"/>', search:'<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>', pin:'<path d="M9 3h6l-1 6 4 4H6l4-4zM12 13v8"/>',
-  reload:'<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"/>', send:'<path d="M4 12 20 4l-6 16-3-7z"/>', stop:'<rect x="7" y="7" width="10" height="10" rx="1.5"/>'
+  shield:'<path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',help:'<circle cx="12" cy="12" r="8.5"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7M12 17h.01"/>',top:'<path d="M5 4h14M12 8v12M7.5 12.5 12 8l4.5 4.5"/>',globe:'<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.5 2.6 3.7 5.4 3.7 8.5s-1.2 5.9-3.7 8.5c-2.5-2.6-3.7-5.4-3.7-8.5S9.5 6.1 12 3.5z"/>',star:'<path d="m12 4 2.4 5 5.4.6-4 3.7 1.1 5.4L12 16l-4.9 2.7 1.1-5.4-4-3.7 5.4-.6z"/>',image:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="m20.5 16-5-5-8 8"/>',play:'<rect x="3.5" y="5" width="17" height="14" rx="2"/><path d="m10 9 5 3-5 3z"/>',music:'<path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/>',table:'<rect x="3.5" y="4.5" width="17" height="15" rx="1.5"/><path d="M3.5 9.5h17M3.5 14.5h17M9.5 4.5v15"/>',out:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',home:'<path d="M4 11 12 4l8 7M6.5 9.5V20h11V9.5"/>',reload:'<path d="M19.5 12a7.5 7.5 0 1 1-2.2-5.3M19.5 4.5v4h-4"/>', send:'<path d="M4 12 20 4l-6 16-3-7z"/>', stop:'<rect x="7" y="7" width="10" height="10" rx="1.5"/>'
 };
 const ic=(n)=>{const s=document.createElementNS('http://www.w3.org/2000/svg','svg');s.setAttribute('viewBox','0 0 24 24');s.setAttribute('class','i');s.setAttribute('aria-hidden','true');s.innerHTML=ICONS[n]||ICONS.box;return s;};
 function h(tag,props,...kids){const el=document.createElement(tag);for(const[k,v]of Object.entries(props||{})){if(v==null||v===false)continue;if(k==='class')el.className=v;else if(k.startsWith('on'))el.addEventListener(k.slice(2),v);else if(k==='value')el.value=v;else if(k==='style')el.style.cssText=v;else el.setAttribute(k,v===true?'':v);}for(const c of kids.flat()){if(c==null||c===false)continue;el.append(c.nodeType?c:document.createTextNode(String(c)));}return el;}
@@ -370,6 +434,13 @@ const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
 const COLORS=['#1f6f8b','#2e7d4f','#a8551e','#7a4bb0','#b3261e','#5a6470','#b08900','#0f766e'];
 const initials=(n)=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';
 const extOf=(n)=>{const m=/\.([a-z0-9]{1,6})$/i.exec(n||'');return m?m[1].toLowerCase():'';};
+const VERSIONE_SISTEMA='1.4';
+const NOVITA=[
+  ['1.4','04/11/2026',['Browser con schede, preferiti, cronologia e pulsante “Apri in Chrome”','Siti web come icone sulla scrivania','Caricamento di qualsiasi file: PDF, immagini, video, audio, Excel, Word e altri','Visualizzatori integrati per PDF, immagini, video, audio, tabelle Excel e CSV, documenti Word','Installazione di web app in più file da archivio .zip','Backup su Google Drive anche dei file, inviati una sola volta e non a ogni backup']],
+  ['1.3','03/11/2026',['Menu Aiuto con versione e novità di ogni aggiornamento','Icone della scrivania libere: trascinale dove vuoi','Finestre flottanti su ogni schermo, anche tablet e telefono, con opzione “Sempre in primo piano”','App installate in uno spazio isolato: non possono leggere né modificare il sistema, le altre app o il file originale','Dati di ogni app separati, inclusi nei backup ed esportabili']],
+  ['1.2','03/11/2026',['Backup automatico su Google Drive nella cartella scelta','Ripristino dei backup da Drive']],
+  ['1.1','03/11/2026',['Versione per GitHub installabile come app','Funziona anche senza connessione','App installate salvate senza limite di spazio']],
+  ['1.0','03/11/2026',['Scrivania con finestre, menu Start e ricerca','Installazione delle tue app HTML','File, note, agenda, calcolatrice, assistente','PIN, backup su file, permessi']]];
 const IN_CLAUDE=!!(window.claude&&window.claude.use);
 const cap=(name)=>(window.claude&&window.claude.use)?window.claude.use(name).catch(()=>null):Promise.resolve(null);
 
@@ -378,6 +449,14 @@ async function saveFile(filename,data){
   if(d){return d.save({filename,data}).then(()=>true).catch(e=>{if(e.code!=='declined')toast('Salvataggio non riuscito.');return false;});}
   try{const url=URL.createObjectURL(new Blob([data],{type:'application/octet-stream'}));const a=h('a',{href:url,download:filename});document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);return true;}
   catch(e){toast('Salvataggio non riuscito.');return false;}}
+const LIB={pdf:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js',pdfw:'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js',
+  xlsx:'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',zip:'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',docx:'https://cdn.jsdelivr.net/npm/mammoth@1.6.0/mammoth.browser.min.js'};
+const libP={};
+function loadLib(src){if(libP[src])return libP[src];libP[src]=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.async=true;s.onload=()=>res();s.onerror=()=>{delete libP[src];s.remove();rej({code:'lib'});};document.head.append(s);});return libP[src];}
+const MB=1048576;
+function blobToB64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>{const s=String(r.result);res(s.slice(s.indexOf(',')+1));};r.onerror=()=>rej(r.error);r.readAsDataURL(blob);});}
+function b64ToBytes(b64){const bin=atob(String(b64).replace(/\s/g,''));const u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);return u;}
+const b64ToBlob=(b64,mime)=>new Blob([b64ToBytes(b64)],{type:mime||'application/octet-stream'});
 /* Archivio locale grande (IndexedDB) per il codice delle app */
 const IDB={db:null,open(){if(this.db)return Promise.resolve(this.db);return new Promise((res,rej)=>{try{const r=indexedDB.open('sow-apps',1);r.onupgradeneeded=()=>r.result.createObjectStore('code');r.onsuccess=()=>{this.db=r.result;res(this.db);};r.onerror=()=>rej(r.error);}catch(e){rej(e);}});},
   async get(k){const db=await this.open();return new Promise((res,rej)=>{const q=db.transaction('code').objectStore('code').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error);});},
@@ -385,8 +464,8 @@ const IDB={db:null,open(){if(this.db)return Promise.resolve(this.db);return new 
   async del(k){const db=await this.open();return new Promise((res)=>{const t=db.transaction('code','readwrite');t.objectStore('code').delete(k);t.oncomplete=()=>res();t.onerror=()=>res();});}};
 
 /* ===================== Archivio dati ===================== */
-const COLS=['fs','notes','agenda','apps'];
-const S={mode:'loading',synced:false,stale:false,error:null,maps:{fs:new Map(),notes:new Map(),agenda:new Map(),apps:new Map()},chains:{}};
+const COLS=['fs','notes','agenda','apps','bookmarks'];
+const S={mode:'loading',synced:false,stale:false,error:null,maps:{fs:new Map(),notes:new Map(),agenda:new Map(),apps:new Map(),bookmarks:new Map()},chains:{}};
 const subs=new Set();let emitQ=false;
 const emit=()=>{if(emitQ)return;emitQ=true;queueMicrotask(()=>{emitQ=false;subs.forEach(f=>{try{f();}catch(e){console.error(e);}});});};
 let DB=null;
@@ -450,8 +529,9 @@ async function dropAppCode(id,keepVer){
   try{const snap=await DB.collection('appcode').where('app','==',id).get();
     for(const d of snap.docs){if(keepVer==null||d.data().ver!==keepVer)await queue('appcode',d.id,()=>DB.collection('appcode').doc(d.id).delete());}}catch(e){}}
 async function installApp({file,name,color,id},onProg){
-  const text=await file.text();
+  const text=/\.zip$/i.test(file.name)?await bundleZip(file):await file.text();
   if(!/<html|<body|<script|<div|<!doctype/i.test(text.slice(0,20000)))throw new Error('not_html');
+  if(text.length>15*MB)throw new Error('too_large_app');
   const old=id?S.maps.apps.get(id):null;id=id||uid();const ver=old?(old.ver||1)+1:1;
   const chunks=await writeAppCode(id,ver,text,onProg);
   const meta={name,color,ver,chunks,size:text.length,file:file.name,installed:old?old.installed:Date.now(),updated:Date.now()};
@@ -459,7 +539,7 @@ async function installApp({file,name,color,id},onProg){
   if(old)dropAppCode(id,ver);
   wins.filter(w=>w.app==='run'&&w.state.id===id).forEach(w=>w.reload&&w.reload());
   return id;}
-async function uninstallApp(id){wins.filter(w=>w.app==='run'&&w.state.id===id).forEach(closeWin);await del('apps',id);dropAppCode(id,null);}
+async function uninstallApp(id){wins.filter(w=>w.app==='run'&&w.state.id===id).forEach(closeWin);await del('apps',id);dropAppCode(id,null);APPDATA.drop(id);}
 
 /* ===================== Finestre ===================== */
 const desk=$('#desk');const narrow=matchMedia('(max-width:760px)');
@@ -474,16 +554,19 @@ const APPS={
   appmgr:{title:'Gestione app',icon:'box',w:620,h:560,single:true,mount:mountAppMgr,desc:'Installa e aggiorna le tue web app'},
   trash:{title:'Cestino',icon:'trash',w:600,h:420,single:true,mount:mountTrash,desc:'File eliminati, ripristinabili'},
   settings:{title:'Impostazioni',icon:'gear',w:580,h:520,single:true,mount:mountSettings,desc:'Sfondo, PIN, backup, permessi'},
+  help:{title:'Aiuto',icon:'help',w:560,h:560,single:true,mount:mountHelp,desc:'Versione, novità e guida rapida'},
   editor:{title:'Documento',icon:'doc',w:640,h:500,mount:mountEditor},
-  run:{title:'App',icon:'box',w:960,h:640,mount:mountRun}
+  run:{title:'App',icon:'box',w:960,h:640,mount:mountRun},
+  viewer:{title:'Visualizzatore',icon:'image',w:820,h:600,mount:mountViewer},
+  browser:{title:'Browser',icon:'globe',w:980,h:660,single:true,mount:mountBrowser,desc:'Siti web, preferiti e ricerca'}
 };
-const BUILTIN=['files','notes','agenda','assistant','calc','appmgr','trash','settings'].filter(k=>k!=='assistant'||IN_CLAUDE);
+const BUILTIN=['files','browser','notes','agenda','assistant','calc','appmgr','trash','settings','help'].filter(k=>k!=='assistant'||IN_CLAUDE);
 function appTile(id,sm){const m=S.maps.apps.get(id)||{};return h('span',{class:'tile'+(sm?' sm':''),style:'background:'+(m.color||COLORS[0])+';color:#fff'},initials(m.name));}
 function geoKey(key,opts){return key==='run'?'run:'+opts.id:key;}
 function openApp(key,opts={}){
   const A=APPS[key];
   const ex=wins.find(w=>w.app===key&&(A.single||(opts.id&&w.state&&w.state.id===opts.id)));
-  if(ex){if(ex.desk!==curDesk)switchDesk(ex.desk);ex.min=false;vis(ex);focusWin(ex);return ex;}
+  if(ex){if(ex.desk!==curDesk)switchDesk(ex.desk);ex.min=false;vis(ex);focusWin(ex);if(ex.onReopen)ex.onReopen(opts);return ex;}
   const W={id:uid(),app:key,title:A.title,icon:A.icon,state:{},desk:curDesk,min:false,gk:geoKey(key,opts)};
   if(key==='run'){const m=S.maps.apps.get(opts.id);W.title=m?m.name:'App';}
   const titleEl=h('div',{class:'win-title'},W.title);
@@ -498,8 +581,8 @@ function openApp(key,opts={}){
   const g=jGet('sow-geo',{})[W.gk];
   const dw=desk.clientWidth,dh=desk.clientHeight;
   if(g&&!g.max){setRect(el,g.l*dw,g.t*dh,g.w*dw,g.h*dh);}
-  else{const w=Math.min(A.w,dw-24),hh=Math.min(A.h,dh-24),off=(cascade++%6)*28;
-    setRect(el,Math.round((dw-w)/2)-80+off,Math.round((dh-hh)/2)-60+off,w,hh);if(g&&g.max)el.classList.add('max');}
+  else{const small=dw<760;const w=small?dw-16:Math.min(A.w,dw-24),hh=small?dh-16:Math.min(A.h,dh-24),off=small?0:(cascade++%6)*28;
+    if(small)setRect(el,8,8,w,hh);else setRect(el,Math.round((dw-w)/2)-80+off,Math.round((dh-hh)/2)-60+off,w,hh);if(g&&g.max)el.classList.add('max');}
   Object.assign(W,{el,body,titleEl,head,setTitle:t=>{W.title=t;titleEl.textContent=t;el.setAttribute('aria-label',t);renderTasks();}});
   el.addEventListener('pointerdown',()=>focusWin(W),true);
   el.addEventListener('focusin',()=>focusWin(W));
@@ -507,11 +590,11 @@ function openApp(key,opts={}){
   head.addEventListener('dblclick',e=>{if(!e.target.closest('button'))toggleMax(W);});
   desk.append(el);wins.push(W);A.mount(W,opts);focusWin(W);return W;
 }
-function setRect(el,l,t,w,hh){const dw=desk.clientWidth,dh=desk.clientHeight;w=Math.max(280,Math.min(w,dw));hh=Math.max(200,Math.min(hh,dh));
+function setRect(el,l,t,w,hh){const dw=desk.clientWidth,dh=desk.clientHeight;w=Math.max(Math.min(280,dw),Math.min(w,dw));hh=Math.max(Math.min(200,dh),Math.min(hh,dh));
   el.style.left=Math.round(Math.max(0,Math.min(dw-w,l)))+'px';el.style.top=Math.round(Math.max(0,Math.min(dh-hh,t)))+'px';el.style.width=Math.round(w)+'px';el.style.height=Math.round(hh)+'px';}
-function saveGeo(W){const dw=desk.clientWidth,dh=desk.clientHeight;if(!dw||!dh||narrow.matches)return;const el=W.el;const all=jGet('sow-geo',{});
+function saveGeo(W){const dw=desk.clientWidth,dh=desk.clientHeight;if(!dw||!dh)return;const el=W.el;const all=jGet('sow-geo',{});
   all[W.gk]={l:el.offsetLeft/dw,t:el.offsetTop/dh,w:el.offsetWidth/dw,h:el.offsetHeight/dh,max:el.classList.contains('max')};jSet('sow-geo',all);}
-function toggleMax(W){if(narrow.matches)return;W.el.classList.toggle('max');saveGeo(W);}
+function toggleMax(W){W.el.classList.toggle('max');saveGeo(W);}
 function snapTo(W,z){const dw=desk.clientWidth,dh=desk.clientHeight;W.el.classList.remove('max');
   const R={l:[0,0,.5,1],r:[.5,0,.5,1],tl:[0,0,.5,.5],tr:[.5,0,.5,.5],bl:[0,.5,.5,.5],br:[.5,.5,.5,.5]}[z];
   if(z==='max'){W.el.classList.add('max');}else setRect(W.el,R[0]*dw,R[1]*dh,R[2]*dw,R[3]*dh);saveGeo(W);}
@@ -523,7 +606,7 @@ function showSnap(z){const s=$('#snap');if(!z){s.hidden=true;return;}const R={l:
   s.hidden=false;s.style.cssText=`left:calc(${R[0]}% + 6px);top:calc(${R[1]}% + 6px);width:calc(${R[2]}% - 12px);height:calc(${R[3]}% - 12px)`;}
 function drag(handle,W,mode){const el=W.el;
   handle.addEventListener('pointerdown',e=>{
-    if(e.button!==0||e.target.closest('button')||narrow.matches)return;
+    if(e.button!==0||e.target.closest('button'))return;
     if(el.classList.contains('max')&&mode==='size')return;
     e.preventDefault();handle.setPointerCapture(e.pointerId);
     const rect=desk.getBoundingClientRect();let zone=null;
@@ -533,30 +616,32 @@ function drag(handle,W,mode){const el=W.el;
     const mv=ev=>{const dx=ev.clientX-sx,dy=ev.clientY-sy,DW=desk.clientWidth,DH=desk.clientHeight;
       if(mode==='move'){el.style.left=Math.max(-w+100,Math.min(DW-100,l+dx))+'px';el.style.top=Math.max(0,Math.min(DH-42,t+dy))+'px';
         zone=zoneAt(ev.clientX-rect.left,ev.clientY-rect.top,DW,DH);showSnap(zone);}
-      else{el.style.width=Math.max(280,Math.min(DW-l,w+dx))+'px';el.style.height=Math.max(200,Math.min(DH-t,hh+dy))+'px';}};
+      else{el.style.width=Math.max(Math.min(240,DW),Math.min(DW-l,w+dx))+'px';el.style.height=Math.max(200,Math.min(DH-t,hh+dy))+'px';}};
     const up=()=>{handle.removeEventListener('pointermove',mv);handle.removeEventListener('pointerup',up);handle.removeEventListener('pointercancel',up);
       el.classList.remove('moving');showSnap(null);if(zone)snapTo(W,zone);else saveGeo(W);};
     handle.addEventListener('pointermove',mv);handle.addEventListener('pointerup',up);handle.addEventListener('pointercancel',up);
   });}
 function winMenu(W,anchor){
   closePops();const items=[];
-  if(!narrow.matches){items.push(h('div',{class:'lab'},'Disposizione'),
+  {items.push(h('div',{class:'lab'},'Disposizione'),
     h('button',{onclick:()=>{snapTo(W,'l');closePops();}},ic('left'),'Metà sinistra'),
     h('button',{onclick:()=>{snapTo(W,'r');closePops();}},ic('right'),'Metà destra'),
     h('button',{onclick:()=>{snapTo(W,'max');closePops();}},ic('max'),'Schermo intero'),h('hr'));}
+  items.push(h('button',{onclick:()=>{W.onTop=!W.onTop;W.el.classList.toggle('ontop',W.onTop);W.el.style.zIndex=zOf(W);closePops();toast(W.onTop?'Finestra sempre in primo piano.':'Finestra di nuovo normale.');}},ic('top'),W.onTop?'Togli “sempre in primo piano”':'Sempre in primo piano'),h('hr'));
   items.push(h('div',{class:'lab'},'Sposta su scrivania'),h('div',{class:'row4'},[...Array(DESKS)].map((_,i)=>h('button',{class:i===W.desk?'cur':'',onclick:()=>{W.desk=i;vis(W);closePops();renderTasks();renderDesks();if(i!==curDesk)toast('Finestra spostata sulla scrivania '+(i+1));}},i+1))));
   if(W.reload)items.push(h('hr'),h('button',{onclick:()=>{W.reload();closePops();}},ic('reload'),'Ricarica app'));
   const p=h('div',{class:'pop',role:'menu'},items);p.style.right='6px';p.style.top='40px';
   W.head.append(p);openPop=p;}
 let openPop=null;function closePops(){if(openPop){openPop.remove();openPop=null;}}
 function vis(W){W.el.hidden=W.min||W.desk!==curDesk;}
-function focusWin(W){if(active===W&&W.el.style.zIndex==zTop)return;active=W;W.el.style.zIndex=++zTop;wins.forEach(x=>x.el.classList.toggle('active',x===W));renderTasks();}
+function zOf(W){return ++zTop+(W.onTop?1000000:0);}
+function focusWin(W){if(active===W&&+W.el.style.zIndex===zTop+(W.onTop?1000000:0))return;active=W;W.el.style.zIndex=zOf(W);wins.forEach(x=>x.el.classList.toggle('active',x===W));renderTasks();}
 function topVisible(){return wins.filter(x=>!x.el.hidden).sort((a,b)=>b.el.style.zIndex-a.el.style.zIndex)[0];}
 function minimize(W){W.min=true;vis(W);if(active===W){active=null;const t=topVisible();if(t)focusWin(t);}renderTasks();}
 function closeWin(W){if(W.cleanup)W.cleanup();W.el.remove();wins=wins.filter(x=>x!==W);if(active===W){active=null;const t=topVisible();if(t)focusWin(t);}renderTasks();renderDesks();}
 function switchDesk(i){curDesk=i;wins.forEach(vis);active=null;const t=topVisible();if(t)focusWin(t);renderTasks();renderDesks();}
 function arrange(mode){const list=wins.filter(w=>w.desk===curDesk);list.forEach(w=>{w.min=false;vis(w);w.el.classList.remove('max');});
-  const dw=desk.clientWidth,dh=desk.clientHeight;if(!list.length||narrow.matches)return;
+  const dw=desk.clientWidth,dh=desk.clientHeight;if(!list.length)return;
   if(mode==='tile'){const n=list.length,cols=Math.ceil(Math.sqrt(n)),rows=Math.ceil(n/cols);
     list.forEach((w,i)=>{const r=Math.floor(i/cols),c=i%cols,inRow=r===rows-1?n-cols*(rows-1):cols;const cw=dw/inRow,ch=dh/rows;setRect(w.el,c*cw,r*ch,cw,ch);saveGeo(w);});}
   else list.forEach((w,i)=>{setRect(w.el,30+i*32,20+i*32,Math.min(760,dw*.6),Math.min(520,dh*.7));w.el.style.zIndex=++zTop;});
@@ -577,15 +662,49 @@ function trail(id){const a=[];let g=0;while(id&&id!=='root'&&g++<60){const f=S.m
 function descendants(id){let out=[id];for(const[k]of allKids(id))out=out.concat(descendants(k));return out;}
 const trashItem=(id)=>upd('fs',id,{trashed:true,trashedAt:Date.now()});
 const TEXT_EXT=['txt','md','csv','json','html','htm','xml','js','css','log','ini','tsv'];
+const T_IMG=['jpg','jpeg','png','gif','webp','bmp','svg','avif'],T_VID=['mp4','webm','mov','m4v','ogv'],T_AUD=['mp3','wav','ogg','oga','m4a','aac','flac','opus'],T_SHEET=['xlsx','xls','ods','xlsm'],T_CSV=['csv','tsv'];
+function ftype(ext){ext=String(ext||'').toLowerCase();return ext==='pdf'?'pdf':T_IMG.includes(ext)?'image':T_VID.includes(ext)?'video':T_AUD.includes(ext)?'audio':T_SHEET.includes(ext)?'sheet':T_CSV.includes(ext)?'csv':ext==='docx'?'word':TEXT_EXT.includes(ext)?'text':'other';}
+const FICON={pdf:'doc',image:'image',video:'play',audio:'music',sheet:'table',csv:'table',word:'doc',text:'doc',other:'box'};
+const fullName=(f)=>(f.name||'file')+(f.ext?'.'+f.ext:'');
+const fsIcon=(f)=>ic(f.kind==='folder'?'folder':f.kind==='file'?FICON[ftype(f.ext)]:'doc');
+function openFs(id){const f=S.maps.fs.get(id);if(!f)return;if(f.kind==='folder'){const W=openApp('files');W.state.cwd=id;W.refresh();}else if(f.kind==='file')openApp('viewer',{id});else openApp('editor',{id});}
+/* File binari: su claude.ai nello spazio dell'artefatto (immagini, video, PDF) o nell'archivio online a blocchi (altri tipi); su GitHub nel browser (IndexedDB) */
+const ASSET_TYPES=/^(image\/(png|jpe?g|gif|webp|bmp|avif|svg\+xml)|video\/(mp4|webm|quicktime|ogg)|application\/pdf)$/i;
+const FILES={assets:null,ready:null,
+  init(){if(!this.ready)this.ready=(async()=>{await ready;if(S.mode==='online')this.assets=await cap('assets');})();return this.ready;},
+  limit(){return S.mode==='online'?20*MB:300*MB;},
+  async store(blob){await this.init();const t=String(blob.type||'').toLowerCase();
+    if(S.mode==='online'){
+      if(this.assets&&ASSET_TYPES.test(t)){if(blob.size>20*MB)throw{code:'too_big',max:'20 MB'};const r=await this.assets.upload(blob);return{store:'asset',id:r.id,url:r.url};}
+      if(blob.size>10*MB)throw{code:'too_big',max:'10 MB'};
+      const key=uid();const b64=await blobToB64(blob);const n=Math.max(1,Math.ceil(b64.length/CHUNK));
+      for(let i=0;i<n;i++){const did=key+'-'+i;await queue('filedata',did,()=>DB.collection('filedata').doc(did).set({f:key,i,data:b64.slice(i*CHUNK,(i+1)*CHUNK)}));}
+      return{store:'db',key,chunks:n,mime:t};}
+    if(blob.size>300*MB)throw{code:'too_big',max:'300 MB'};
+    const key='file:'+uid();try{await IDB.set(key,blob);}catch(e){throw{code:'space'};}return{store:'idb',key};},
+  async blob(ref,mime){if(!ref)throw{code:'missing'};
+    if(ref.store==='asset'){if(S.mode!=='online')throw{code:'missing'};const r=await fetch(ref.url);if(!r.ok)throw{code:'missing'};return r.blob();}
+    if(ref.store==='db'){if(S.mode!=='online')throw{code:'missing'};const snap=await DB.collection('filedata').where('f','==',ref.key).get();
+      const parts=snap.docs.map(d=>d.data()).sort((a,b)=>a.i-b.i);if(parts.length!==ref.chunks)throw{code:'missing'};return b64ToBlob(parts.map(x=>x.data).join(''),ref.mime||mime);}
+    if(ref.store==='idb'){if(S.mode!=='local')throw{code:'missing'};const b=await IDB.get(ref.key);if(!b)throw{code:'missing'};return b instanceof Blob?b:new Blob([b],{type:mime||''});}
+    throw{code:'missing'};},
+  async has(ref){if(!ref)return false;if(ref.store==='asset'||ref.store==='db')return S.mode==='online';if(ref.store==='idb'){if(S.mode!=='local')return false;try{return !!(await IDB.get(ref.key));}catch(e){return false;}}return false;},
+  async remove(ref){try{if(!ref)return;await this.init();
+    if(ref.store==='asset'&&this.assets&&S.mode==='online')await this.assets.delete(ref.id);
+    else if(ref.store==='db'&&S.mode==='online'){const snap=await DB.collection('filedata').where('f','==',ref.key).get();for(const d of snap.docs)await queue('filedata',d.id,()=>DB.collection('filedata').doc(d.id).delete());}
+    else if(ref.store==='idb')await IDB.del(ref.key);}catch(e){}}};
+function fileErr(e){const c=e&&e.code;return c==='too_big'?'oltre '+e.max:c==='space'?'spazio del browser esaurito':c==='quota_exceeded'?'spazio online esaurito':c==='invalid_argument'?'non hai il permesso di caricare file':'caricamento non riuscito';}
+async function zipHasHtml(file){await loadLib(LIB.zip);const z=await JSZip.loadAsync(await file.arrayBuffer());let ok=false;z.forEach((p,e)=>{if(!e.dir&&/\.html?$/i.test(p)&&!/(^|\/)__MACOSX\//.test(p))ok=true;});return ok;}
 async function importFiles(files,parent){
-  let ok=0,skipped=[];
-  for(const f of files){const ext=extOf(f.name);
+  parent=parent||'root';let ok=0;const skipped=[];
+  for(const f of files){const ext=extOf(f.name);const base=f.name.replace(/\.[^.]+$/,'')||f.name;
     if((ext==='html'||ext==='htm')&&f.size>1000){pendingInstall=f;openApp('appmgr');toast('File HTML: puoi installarlo come app dal riquadro “Installa app”.');continue;}
-    if(!TEXT_EXT.includes(ext)&&!(f.type||'').startsWith('text')){skipped.push(f.name);continue;}
-    if(f.size>200000){skipped.push(f.name+' (oltre 200 KB)');continue;}
-    const text=await f.text();await add('fs',{name:f.name.replace(/\.[^.]+$/,''),kind:'doc',ext,parent:parent||'root',content:text});ok++;}
+    if(ext==='zip'){let isApp=false;try{isApp=await zipHasHtml(f);}catch(e){}if(isApp){pendingInstall=f;openApp('appmgr');toast('Archivio .zip con una web app: puoi installarlo dal riquadro “Installa app”.');continue;}}
+    if((TEXT_EXT.includes(ext)||String(f.type||'').startsWith('text/'))&&f.size<=200000){const text=await f.text();await add('fs',{name:base,kind:'doc',ext,parent,content:text});ok++;continue;}
+    try{if(files.length===1||f.size>2*MB)toast('Caricamento di '+f.name+'…');const ref=await FILES.store(f);await add('fs',{name:base,kind:'file',ext,mime:f.type||'',size:f.size,parent,blob:ref});ok++;}
+    catch(e){skipped.push(f.name+' ('+fileErr(e)+')');}}
   if(ok)toast(ok===1?'File salvato nell’archivio.':ok+' file salvati nell’archivio.');
-  if(skipped.length)toast('Non salvati: '+skipped.join(', ')+'. Si possono caricare file di testo (txt, csv, json, md).');}
+  if(skipped.length)setTimeout(()=>toast('Non salvati: '+skipped.join(', ')+'.'),ok?2500:0);}
 const pick=$('#pickFiles');let pickTarget='root';
 pick.addEventListener('change',()=>{const fs=[...pick.files];pick.value='';if(fs.length)importFiles(fs,pickTarget);});
 let dragDepth=0;
@@ -612,14 +731,14 @@ function renderFiles(W,force){
     h('button',{class:'ibtn',title:'Cartella superiore','aria-label':'Cartella superiore',disabled:st.cwd==='root',onclick:()=>{st.cwd=parent;renderFiles(W);}},ic('up')),
     crumbs,
     h('button',{class:'btn',onclick:()=>newItem(W,'folder')},ic('folder'),'Nuova cartella'),
-    h('button',{class:'btn',title:'Carica file dal dispositivo',onclick:()=>{pickTarget=st.cwd;pick.accept='.txt,.md,.csv,.json,.tsv,.xml,.log,.html,text/*';pick.click();}},ic('upload'),'Carica'),
+    h('button',{class:'btn',title:'Carica file dal dispositivo',onclick:()=>{pickTarget=st.cwd;pick.accept='';pick.click();}},ic('upload'),'Carica'),
     h('button',{class:'btn pri',onclick:()=>newItem(W,'doc')},ic('plus'),'Nuovo documento'));
   const list=kids(st.cwd);let content;
   if(S.mode==='loading'||(S.mode==='online'&&!S.synced&&!S.stale&&!S.error&&!list.length))content=h('div',{class:'empty'},'Caricamento dell’archivio…');
   else if(!list.length)content=h('div',{class:'empty'},'Questa cartella è vuota. Crea una cartella o un documento, oppure trascina qui dei file dal computer.');
   else content=h('div',{class:'rows'},list.map(([id,f])=>{
     const isF=f.kind==='folder';
-    const open=()=>{if(isF){st.cwd=id;renderFiles(W);}else openApp('editor',{id});};
+    const open=()=>{if(isF){st.cwd=id;renderFiles(W);}else openFs(id);};
     let name;
     if(st.renaming===id){
       const inp=h('input',{value:f.name,'aria-label':'Nuovo nome'});let done=false;
@@ -635,7 +754,7 @@ function renderFiles(W,force){
       :h('div',{class:'acts'},
         h('button',{class:'ibtn',title:'Rinomina','aria-label':'Rinomina '+f.name,onclick:()=>{st.renaming=id;renderFiles(W,true);}},ic('edit')),
         h('button',{class:'ibtn',title:'Sposta nel cestino','aria-label':'Sposta nel cestino '+f.name,onclick:()=>{st.ask=id;renderFiles(W);}},ic('trash')));
-    return h('div',{class:'row'},h('span',{class:'ic'+(isF?'':' doc')},ic(isF?'folder':'doc')),name,h('span',{class:'dt'},fmtDate(f.updated)),acts);
+    return h('div',{class:'row'},h('span',{class:'ic'+(isF?'':' doc')},fsIcon(f)),name,h('span',{class:'dt'},(f.kind==='file'?fmtSize(f.size||0)+' · ':'')+fmtDate(f.updated)),acts);
   }));
   W.body.replaceChildren(...[roBanner(),tb,content].filter(Boolean));
 }
@@ -643,7 +762,7 @@ function renderFiles(W,force){
 /* ===================== Cestino ===================== */
 function mountTrash(W){W.state={ask:null};W.refresh=()=>{
   const items=[...S.maps.fs.entries()].filter(([,f])=>f.trashed).sort((a,b)=>(b[1].trashedAt||0)-(a[1].trashedAt||0));
-  const purge=(id)=>descendants(id).forEach(k=>del('fs',k));
+  const purge=(id)=>descendants(id).forEach(k=>{const f=S.maps.fs.get(k);if(f&&f.kind==='file')FILES.remove(f.blob);del('fs',k);});
   const tb=h('div',{class:'tb'},h('div',{style:'flex:1;font-size:13px;color:var(--muted)'},items.length?items.length+(items.length===1?' elemento':' elementi'):'Cestino vuoto'),
     items.length?(W.state.ask==='all'
       ?h('div',{class:'ask'},'Eliminare tutto definitivamente?',h('button',{class:'btn dan',onclick:()=>{items.forEach(([id])=>purge(id));W.state.ask=null;}},'Svuota'),h('button',{class:'btn',onclick:()=>{W.state.ask=null;W.refresh();}},'Annulla'))
@@ -675,7 +794,8 @@ function mountEditor(W,opts){
   title.addEventListener('change',()=>{const v=title.value.trim();if(v)upd('fs',W.state.id,{name:v});});
   title.addEventListener('keydown',e=>{if(e.key==='Enter')ta.focus();});
   W.cleanup=()=>{clearTimeout(t);if(stat.textContent==='Modifiche non salvate')upd('fs',W.state.id,{content:ta.value});};
-  const foot=h('div',{class:'ed-foot'},h('span',{},stat,' · ',count),h('div',{style:'display:flex;gap:6px;align-items:center'},openWith,dl));
+  const tabB=h('button',{class:'btn',onclick:()=>openApp('viewer',{id:W.state.id,fromDoc:true})},ic('table'),'Tabella');
+  const foot=h('div',{class:'ed-foot'},h('span',{},stat,' · ',count),h('div',{style:'display:flex;gap:6px;align-items:center'},tabB,openWith,dl));
   const wrap=h('div',{class:'ed'},title,ta,foot);
   W.refresh=()=>{const f=S.maps.fs.get(W.state.id);
     if(!f||isGone(W.state.id)){if(S.mode==='online'&&!S.synced&&!S.error)return;W.body.replaceChildren(h('div',{class:'empty'},'Questo documento è stato eliminato o spostato nel cestino.'));return;}
@@ -684,6 +804,7 @@ function mountEditor(W,opts){
     if(document.activeElement!==title&&title.value!==f.name)title.value=f.name;
     if(document.activeElement!==ta&&ta.value!==(f.content||'')){ta.value=f.content||'';counter();}
     if(W.title!==f.name)W.setTitle(f.name);
+    tabB.hidden=!T_CSV.includes(f.ext);
     const apps=[...S.maps.apps.entries()];openWith.hidden=!apps.length;
     openWith.replaceChildren(h('option',{value:''},'Apri con…'),...apps.map(([id,m])=>h('option',{value:id},m.name)));
     if(!stat.textContent)stat.textContent='Modificato '+fmtDate(f.updated);};
@@ -694,46 +815,287 @@ function mountRun(W,opts){
   W.state={id:opts.id};
   W.reload=async()=>{W.body.replaceChildren(h('div',{class:'empty'},'Avvio dell’app…'));
     try{await ready;let tries=0;while(!S.maps.apps.get(W.state.id)&&tries++<20)await new Promise(r=>setTimeout(r,250));
-      const code=await readAppCode(W.state.id);
-      const fr=h('iframe',{title:W.title,sandbox:'allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-downloads'});
-      fr.srcdoc=code;W.body.replaceChildren(fr);
+      const code=await readAppCode(W.state.id);const data=await APPDATA.load(W.state.id);
+      const token=uid()+uid();W.appToken=token;
+      /* Nessun allow-same-origin: l'app gira in uno spazio separato e non può toccare il sistema, le altre app né i file originali */
+      const fr=h('iframe',{title:W.title,sandbox:'allow-scripts allow-forms allow-modals allow-popups allow-downloads',referrerpolicy:'no-referrer'});
+      fr.srcdoc=injectShim(code,data,token);W.frame=fr;W.body.replaceChildren(fr);
       fr.addEventListener('load',()=>{if(W.pendingFile){try{fr.contentWindow.postMessage({type:'sow-file',...W.pendingFile},'*');}catch(e){}W.pendingFile=null;}});
     }catch(e){W.body.replaceChildren(h('div',{class:'empty'},e.message==='incomplete'?'Il file dell’app è incompleto. Reinstallalo da Gestione app.':e.message==='missing'?'Questa app non è più installata.':'Impossibile avviare l’app. Riprova con Ricarica dal menu ⋯.'));}};
   W.refresh=()=>{const m=S.maps.apps.get(W.state.id);if(m&&W.title!==m.name)W.setTitle(m.name);};
+  W.cleanup=()=>APPDATA.flush(W.state.id);
   W.reload();}
+/* Memoria privata di ogni app: sostituisce localStorage dentro lo spazio isolato */
+function injectShim(code,data,token){
+  const init=JSON.stringify(data||{}).replace(/</g,'\\u003c').replace(/\u2028/g,'\\u2028').replace(/\u2029/g,'\\u2029');
+  const shim='<script>(function(){var T='+JSON.stringify(token)+';var store=Object.create(null),D='+init+';for(var k in D)store[k]=String(D[k]);var t=null;'+
+  'function flush(){t=null;try{parent.postMessage({sow:"store",token:T,data:store},"*")}catch(e){}}function sch(){if(!t)t=setTimeout(flush,700)}'+
+  'function mk(persist,s){var api={getItem:function(k){k=String(k);return Object.prototype.hasOwnProperty.call(s(),k)?s()[k]:null},setItem:function(k,v){s()[String(k)]=String(v);if(persist)sch()},'+
+  'removeItem:function(k){delete s()[String(k)];if(persist)sch()},clear:function(){var o=s();for(var k in o)delete o[k];if(persist)sch()},key:function(i){var a=Object.keys(s());return i<a.length?a[i]:null}};'+
+  'Object.defineProperty(api,"length",{get:function(){return Object.keys(s()).length},configurable:true});'+
+  'return new Proxy(api,{get:function(o,p){if(p in o){var v=o[p];return typeof v==="function"?v.bind(o):v}return typeof p==="string"&&Object.prototype.hasOwnProperty.call(s(),p)?s()[p]:undefined},'+
+  'set:function(o,p,v){api.setItem(p,v);return true},deleteProperty:function(o,p){api.removeItem(p);return true},has:function(o,p){return p in o||p in s()},'+
+  'ownKeys:function(){return Object.keys(s())},getOwnPropertyDescriptor:function(o,p){if(Object.prototype.hasOwnProperty.call(s(),p))return{value:s()[p],enumerable:true,configurable:true,writable:true}}})}'+
+  'var sess=Object.create(null);try{Object.defineProperty(window,"localStorage",{value:mk(true,function(){return store}),configurable:true})}catch(e){}'+
+  'try{Object.defineProperty(window,"sessionStorage",{value:mk(false,function(){return sess}),configurable:true})}catch(e){}'+
+  'window.addEventListener("pagehide",function(){if(t){clearTimeout(t);flush()}});document.addEventListener("visibilitychange",function(){if(document.hidden&&t){clearTimeout(t);flush()}});})();<\/script>';
+  const m=/<head[^>]*>/i.exec(code);if(m)return code.slice(0,m.index+m[0].length)+shim+code.slice(m.index+m[0].length);
+  const d=/<!doctype[^>]*>/i.exec(code);if(d)return code.slice(0,d.index+d[0].length)+shim+code.slice(d.index+d[0].length);
+  return shim+code;}
+window.addEventListener('message',e=>{const d=e.data;if(!d||d.sow!=='store')return;
+  const W=wins.find(w=>w.app==='run'&&w.frame&&w.frame.contentWindow===e.source&&w.appToken===d.token);if(!W)return;
+  if(!d.data||typeof d.data!=='object')return;const clean={};for(const[k,v]of Object.entries(d.data))clean[String(k)]=String(v);
+  APPDATA.queue(W.state.id,clean);});
+const APPDATA={pending:{},timers:{},chain:{},cache:{},
+  async load(id){await ready;if(this.cache[id])return this.cache[id];let out={};
+    try{if(S.mode==='local'){const t=await IDB.get('data:'+id);out=t?JSON.parse(t):{};}
+      else{const meta=await DB.doc('appmeta/'+id).get();const m=meta.exists?meta.data():null;
+        if(m&&m.seq){const snap=await DB.collection('appdata').where('app','==',id).where('seq','==',m.seq).get();
+          const parts=snap.docs.map(d=>d.data()).sort((a,b)=>a.i-b.i);if(parts.length===m.chunks)out=JSON.parse(parts.map(p=>p.data).join(''));}}}catch(e){out={};}
+    this.cache[id]=out;return out;},
+  queue(id,data){this.cache[id]=data;this.pending[id]=data;clearTimeout(this.timers[id]);this.timers[id]=setTimeout(()=>this.flush(id),2500);},
+  flush(id){clearTimeout(this.timers[id]);const data=this.pending[id];if(!data)return this.chain[id];delete this.pending[id];
+    this.chain[id]=(this.chain[id]||Promise.resolve()).then(()=>this.save(id,data)).catch(()=>toast('Dati dell’app non salvati: controlla la connessione.'));return this.chain[id];},
+  async save(id,data){const text=JSON.stringify(data);
+    if(S.mode==='local'){await IDB.set('data:'+id,text);return;}
+    const ref=DB.doc('appmeta/'+id);const cur=await ref.get();const old=cur.exists?cur.data():{};const seq=(old.seq||0)+1;
+    const n=Math.max(1,Math.ceil(text.length/CHUNK));
+    for(let i=0;i<n;i++){const part=text.slice(i*CHUNK,(i+1)*CHUNK);const did=id+'-d'+seq+'-'+i;await queue('appdata',did,()=>DB.collection('appdata').doc(did).set({app:id,seq,i,data:part}));}
+    await queue('appmeta',id,()=>ref.set({seq,chunks:n,updated:Date.now()}));
+    try{const snap=await DB.collection('appdata').where('app','==',id).get();for(const d of snap.docs)if(d.data().seq!==seq)await queue('appdata',d.id,()=>DB.collection('appdata').doc(d.id).delete());}catch(e){}},
+  async drop(id){delete this.cache[id];delete this.pending[id];clearTimeout(this.timers[id]);
+    if(S.mode==='local'){await IDB.del('data:'+id);return;}
+    try{const snap=await DB.collection('appdata').where('app','==',id).get();for(const d of snap.docs)await queue('appdata',d.id,()=>DB.collection('appdata').doc(d.id).delete());await queue('appmeta',id,()=>DB.doc('appmeta/'+id).delete());}catch(e){}},
+  async replace(id,data){this.cache[id]=data;await this.save(id,data);}};
+
+/* Web app in più file (.zip): tutto viene raccolto in un'unica pagina, che poi gira isolata come le altre app */
+async function replaceAsync(str,re,fn){const parts=[];let last=0;for(const m of str.matchAll(re)){parts.push(str.slice(last,m.index));parts.push(await fn(...m));last=m.index+m[0].length;}parts.push(str.slice(last));return parts.join('');}
+const MIME={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',webp:'image/webp',svg:'image/svg+xml',ico:'image/x-icon',bmp:'image/bmp',avif:'image/avif',
+  woff:'font/woff',woff2:'font/woff2',ttf:'font/ttf',otf:'font/otf',eot:'application/vnd.ms-fontobject',css:'text/css',js:'text/javascript',mjs:'text/javascript',json:'application/json',
+  csv:'text/csv',txt:'text/plain',xml:'application/xml',html:'text/html',htm:'text/html',mp3:'audio/mpeg',wav:'audio/wav',ogg:'audio/ogg',mp4:'video/mp4',webm:'video/webm',pdf:'application/pdf',wasm:'application/wasm',geojson:'application/json',md:'text/markdown'};
+function zipResolve(from,ref){ref=String(ref).trim().replace(/[?#].*$/,'');try{ref=decodeURIComponent(ref);}catch(e){}
+  if(ref.startsWith('/'))return ref.slice(1);const dir=from.includes('/')?from.slice(0,from.lastIndexOf('/')+1):'';const out=[];
+  for(const seg of (dir+ref).split('/')){if(seg===''||seg==='.')continue;if(seg==='..')out.pop();else out.push(seg);}return out.join('/');}
+const zipLocal=(r)=>!!r&&!/^\s*(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(r)&&!/\$\{|\+\s*$/.test(r);
+async function bundleZip(file){
+  await loadLib(LIB.zip);const zip=await JSZip.loadAsync(await file.arrayBuffer());
+  const E={};zip.forEach((p,e)=>{if(!e.dir&&!/(^|\/)__MACOSX\//.test(p)&&!/(^|\/)\.[^/]*$/.test(p))E[p]=e;});
+  const htmls=Object.keys(E).filter(p=>/\.html?$/i.test(p));if(!htmls.length)throw new Error('not_html');
+  const depth=(p)=>p.split('/').length;htmls.sort((a,b)=>depth(a)-depth(b)||(/(^|\/)index\.html?$/i.test(b)?1:0)-(/(^|\/)index\.html?$/i.test(a)?1:0));
+  const main=htmls[0];const base=main.includes('/')?main.slice(0,main.lastIndexOf('/')+1):'';
+  const mimeOf=(p)=>MIME[extOf(p)]||'application/octet-stream';
+  const uri={};const dataURI=async(p)=>{if(!E[p])return null;if(!uri[p])uri[p]='data:'+mimeOf(p)+';base64,'+await E[p].async('base64');return uri[p];};
+  const text=(p)=>E[p]?E[p].async('string'):Promise.resolve(null);
+  const css=(c,from)=>replaceAsync(c,/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi,async(m,q,u)=>{if(!zipLocal(u))return m;const d=await dataURI(zipResolve(from,u));return d?'url("'+d+'")':m;});
+  const attr=(tag,n)=>{const m=new RegExp('\\b'+n+'\\s*=\\s*(["\'])(.*?)\\1','i').exec(tag)||new RegExp('\\b'+n+'\\s*=\\s*([^\\s>]+)','i').exec(tag);return m?(m[2]!=null?m[2]:m[1]):null;};
+  let html=await text(main);
+  html=await replaceAsync(html,/<link\b[^>]*>/gi,async(tag)=>{const href=attr(tag,'href');if(!zipLocal(href))return tag;const pth=zipResolve(main,href);
+    if(/\brel\s*=\s*["']?[^"'>]*stylesheet/i.test(tag)){const c=await text(pth);if(c==null)return tag;return '<style>'+(await css(c,pth)).replace(/<\/style/gi,'<\\/style')+'</style>';}
+    const d=await dataURI(pth);return d?tag.replace(href,d):tag;});
+  html=await replaceAsync(html,/<script\b([^>]*?)\bsrc\s*=\s*(["'])(.*?)\2([^>]*)>\s*<\/script>/gi,async(m,a,q,src,b)=>{if(!zipLocal(src))return m;const js=await text(zipResolve(main,src));if(js==null)return m;return '<script'+a+b+'>'+js.replace(/<\/script/gi,'<\\/script')+'<\/script>';});
+  html=await replaceAsync(html,/<style\b([^>]*)>([\s\S]*?)<\/style>/gi,async(m,a,c)=>'<style'+a+'>'+await css(c,main)+'</style>');
+  html=await replaceAsync(html,/\b(src|poster|data-src)\s*=\s*(["'])([^"'<>]*?)\2/gi,async(m,n,q,v)=>{if(!zipLocal(v)||v.startsWith('data:'))return m;const d=await dataURI(zipResolve(main,v));return d?n+'='+q+d+q:m;});
+  html=await replaceAsync(html,/\bstyle\s*=\s*"([^"]*url\([^"]*)"/gi,async(m,c)=>'style="'+(await css(c,main)).replace(/"/g,"'")+'"');
+  /* File letti dall'app mentre lavora (fetch): json, csv, testi */
+  const F={};let tot=0;
+  for(const p of Object.keys(E)){if(!p.startsWith(base))continue;const x=extOf(p);if(!['json','csv','txt','xml','geojson','md','tsv'].includes(x))continue;const e=E[p];
+    const b64=await e.async('base64');if(b64.length>3*MB||tot+b64.length>12*MB)continue;tot+=b64.length;F[p.slice(base.length)]=[mimeOf(p),b64];}
+  if(Object.keys(F).length){const sh='<script>(function(){var F='+JSON.stringify(F).replace(/</g,'\\u003c')+';function k(u){try{var a=new URL(String(u),"http://zip.local/");if(a.host!=="zip.local")return null;var p=decodeURIComponent(a.pathname.replace(/^\\//,""));return F[p]?p:null}catch(e){return null}}'+
+    'function by(b){var s=atob(b),u=new Uint8Array(s.length);for(var i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u}'+
+    'var of=window.fetch;window.fetch=function(i,o){var u=typeof i==="string"?i:(i&&i.url);var p=u&&k(u);if(p){var f=F[p];return Promise.resolve(new Response(by(f[1]),{status:200,headers:{"Content-Type":f[0]}}))}return of.apply(this,arguments)};})();<\/script>';
+    const m=/<head[^>]*>/i.exec(html);html=m?html.slice(0,m.index+m[0].length)+sh+html.slice(m.index+m[0].length):sh+html;}
+  return html;}
+
+/* ===================== Visualizzatore file ===================== */
+function parseCSV(text){const first=(text.split(/\r?\n/,1)[0]||'');const cnt=(c)=>first.split(c).length-1;
+  const d=cnt('\t')>cnt(';')&&cnt('\t')>cnt(',')?'\t':(cnt(';')>=cnt(',')&&cnt(';')>0)?';':',';
+  const rows=[];let row=[],f='',q=false;
+  for(let i=0;i<text.length;i++){const ch=text[i];
+    if(q){if(ch==='"'){if(text[i+1]==='"'){f+='"';i++;}else q=false;}else f+=ch;}
+    else if(ch==='"'&&f==='')q=true;
+    else if(ch===d){row.push(f);f='';}
+    else if(ch==='\n'||ch==='\r'){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(f);rows.push(row);row=[];f='';if(rows.length>=5000)break;}
+    else f+=ch;}
+  if(f!==''||row.length){row.push(f);rows.push(row);}return rows;}
+const colName=(n)=>{let s='';n++;while(n>0){const m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=Math.floor((n-1)/26);}return s;};
+function tableEl(rows){const MAXR=3000,MAXC=60;const nc=Math.min(MAXC,rows.reduce((m,r)=>Math.max(m,r.length),0));
+  const t=h('table',{class:'tbl'},h('thead',{},h('tr',{},h('th',{},''),[...Array(nc)].map((_,i)=>h('th',{},colName(i))))),
+    h('tbody',{},rows.slice(0,MAXR).map((r,i)=>h('tr',{},h('td',{class:'rn'},i+1),[...Array(nc)].map((_,j)=>{const v=r[j]==null?'':String(r[j]);return h('td',{title:v.length>40?v:null},v);})))));
+  const wrap=h('div',{class:'tbl-wrap'},t);
+  if(rows.length>MAXR||rows.some(r=>r.length>MAXC))wrap.prepend(h('div',{class:'br-note'},'Mostrate le prime '+MAXR+' righe e '+MAXC+' colonne.'));
+  return wrap;}
+function mountViewer(W,opts){
+  W.state={id:opts.id,fromDoc:!!opts.fromDoc};const urls=[];let sig='',stop=()=>{};
+  W.cleanup=()=>{stop();urls.forEach(u=>URL.revokeObjectURL(u));};
+  const bar=h('div',{class:'tb'});const body=h('div',{class:'vw-body'});const foot=h('div',{});
+  W.body.replaceChildren(h('div',{class:'vw'},bar,body,foot));
+  const getBlob=async(f)=>W.state.fromDoc?new Blob([f.content||''],{type:'text/plain'}):FILES.blob(f.blob,f.mime);
+  const objUrl=async(f)=>{if(f.blob&&f.blob.store==='asset')return f.blob.url;const u=URL.createObjectURL(await getBlob(f));urls.push(u);return u;};
+  const dlBtn=(f)=>h('button',{class:'btn',onclick:async()=>{try{if(await saveFile(fullName(f),await getBlob(f)))toast('File salvato.');}catch(e){toast('Contenuto del file non disponibile su questo dispositivo.');}}},ic('down'),'Scarica');
+  const fail=(f,e)=>{body.className='vw-body';const lib=e&&e.code==='lib',miss=e&&e.code==='missing';
+    body.replaceChildren(h('div',{class:'finfo'},h('div',{class:'big'},(f.ext||'?').slice(0,4)),h('b',{},fullName(f)),
+      h('span',{},miss?'Il contenuto di questo file non è presente su questo dispositivo. Ripristinalo da un backup che contiene i file.':lib?'Visualizzatore non raggiungibile: controlla la connessione e riapri il file.':'Impossibile mostrare questo file. Puoi scaricarlo e aprirlo con un’altra app.')));};
+  async function render(f){stop();stop=()=>{};bar.replaceChildren();foot.replaceChildren();body.className='vw-body';
+    body.replaceChildren(h('div',{class:'empty'},'Apertura…'));const t=W.state.fromDoc?'csv':ftype(f.ext);
+    const info=h('span',{style:'flex:1;min-width:0;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis'},(f.ext||'').toUpperCase()+(f.size?' · '+fmtSize(f.size):''));
+    bar.append(info);
+    try{
+      if(t==='image'){const u=await objUrl(f);const img=h('img',{src:u,alt:f.name});let full=false;
+        bar.append(h('button',{class:'btn',onclick:()=>{full=!full;img.classList.toggle('full',full);}},ic('max'),'Adatta / 100%'),dlBtn(f));body.replaceChildren(img);}
+      else if(t==='video'){const u=await objUrl(f);bar.append(dlBtn(f));body.replaceChildren(h('video',{src:u,controls:true,playsinline:true,preload:'metadata'}));}
+      else if(t==='audio'){const u=await objUrl(f);bar.append(dlBtn(f));body.replaceChildren(h('div',{class:'finfo'},h('div',{class:'big'},ic('music')),h('b',{},fullName(f)),h('audio',{src:u,controls:true,preload:'metadata',style:'width:min(420px,100%)'})));}
+      else if(t==='pdf'){bar.append(dlBtn(f));await viewPdf(W,f,bar,body,await (await getBlob(f)).arrayBuffer(),(fn)=>{stop=fn;});}
+      else if(t==='sheet'){await loadLib(LIB.xlsx);const wb=XLSX.read(new Uint8Array(await (await getBlob(f)).arrayBuffer()),{type:'array'});let cur=0;
+        const show=()=>{const ws=wb.Sheets[wb.SheetNames[cur]];const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:false});body.className='vw-body tblmode';body.replaceChildren(tableEl(rows));
+          foot.replaceChildren(wb.SheetNames.length>1?h('div',{class:'tabs-s'},wb.SheetNames.map((n,i)=>h('button',{class:i===cur?'cur':'',onclick:()=>{cur=i;show();}},n))):'');};
+        bar.append(h('button',{class:'btn',title:'Crea un file CSV del foglio nell’archivio',onclick:async()=>{const ws=wb.Sheets[wb.SheetNames[cur]];const csvT=XLSX.utils.sheet_to_csv(ws,{FS:';'});
+          const nm=f.name+(wb.SheetNames.length>1?' - '+wb.SheetNames[cur]:'');
+          if(csvT.length<=200000)await add('fs',{name:nm,kind:'doc',ext:'csv',parent:f.parent||'root',content:csvT});else{const b=new Blob([csvT],{type:'text/csv'});await add('fs',{name:nm,kind:'file',ext:'csv',mime:'text/csv',size:b.size,parent:f.parent||'root',blob:await FILES.store(b)});}
+          toast('CSV creato nella stessa cartella.');}},ic('table'),'Salva come CSV'),dlBtn(f));show();}
+      else if(t==='csv'){const txt=await (await getBlob(f)).text();body.className='vw-body tblmode';body.replaceChildren(tableEl(parseCSV(txt)));if(!W.state.fromDoc)bar.append(dlBtn(f));}
+      else if(t==='word'){await loadLib(LIB.docx);const r=await mammoth.convertToHtml({arrayBuffer:await (await getBlob(f)).arrayBuffer()});
+        const fr=h('iframe',{class:'docx',sandbox:'',title:f.name});
+        fr.srcdoc='<!doctype html><meta charset="utf-8"><style>body{font:15px/1.6 Georgia,"Times New Roman",serif;color:#222;max-width:760px;margin:28px auto;padding:0 28px}img{max-width:100%;height:auto}table{border-collapse:collapse;margin:10px 0}td,th{border:1px solid #bbb;padding:4px 8px;vertical-align:top}h1,h2,h3{font-family:Arial,sans-serif;line-height:1.25}</style>'+r.value;
+        bar.append(h('span',{style:'font-size:12px;color:var(--muted)'},'Sola lettura'),dlBtn(f));body.replaceChildren(fr);}
+      else if(t==='text'){const b=await getBlob(f);const txt=await b.slice(0,600000).text();bar.append(dlBtn(f));body.replaceChildren(h('pre',{},txt+(b.size>600000?'\n\n… (file troncato: scaricalo per vederlo intero)':'')));}
+      else{bar.append(dlBtn(f));body.replaceChildren(h('div',{class:'finfo'},h('div',{class:'big'},(f.ext||'?').slice(0,4)),h('b',{},fullName(f)),h('span',{},fmtSize(f.size||0)+' · Questo tipo di file non si può aprire qui: è conservato nell’archivio e puoi scaricarlo quando serve.')));}
+    }catch(e){console.error(e);fail(f,e);}}
+  W.refresh=()=>{const f=S.maps.fs.get(W.state.id);
+    if(!f||isGone(W.state.id)){if(S.mode==='online'&&!S.synced&&!S.error)return;sig='';stop();bar.replaceChildren();foot.replaceChildren();body.className='vw-body';body.replaceChildren(h('div',{class:'empty'},'Questo file è stato eliminato o spostato nel cestino.'));return;}
+    const t=(W.state.fromDoc?'Tabella · ':'')+f.name;if(W.title!==t)W.setTitle(t);
+    const ns=W.state.fromDoc?String(f.updated):JSON.stringify(f.blob||'');if(ns===sig)return;sig=ns;render(f);};
+  W.refresh();}
+async function viewPdf(W,f,bar,body,ab,setStop){
+  await loadLib(LIB.pdf);await loadLib(LIB.pdfw);const lib=window.pdfjsLib;lib.GlobalWorkerOptions.workerSrc=LIB.pdfw;
+  const doc=await lib.getDocument({data:new Uint8Array(ab),isEvalSupported:false}).promise;
+  const first=await doc.getPage(1);const base=first.getViewport({scale:1});let zoom=1,gen=0;
+  const zl=h('span',{style:'font-size:12.5px;min-width:46px;text-align:center;font-variant-numeric:tabular-nums'},'100%');
+  bar.firstChild.textContent='PDF · '+doc.numPages+(doc.numPages===1?' pagina':' pagine');
+  bar.append(h('button',{class:'ibtn',title:'Riduci','aria-label':'Riduci',onclick:()=>setZoom(zoom/1.25)},ic('min')),zl,h('button',{class:'ibtn',title:'Ingrandisci','aria-label':'Ingrandisci',onclick:()=>setZoom(zoom*1.25)},ic('plus')),h('button',{class:'btn',onclick:()=>setZoom(1)},'Adatta'));
+  const fit=()=>Math.max(.2,(body.clientWidth-32)/base.width);
+  const pages=[];body.replaceChildren();
+  const io=new IntersectionObserver(ents=>ents.forEach(en=>{if(en.isIntersecting)draw(en.target);}),{root:body,rootMargin:'600px 0px'});
+  for(let n=1;n<=doc.numPages;n++){const c=h('canvas',{'aria-label':'Pagina '+n});c._n=n;pages.push(c);body.append(c);}
+  async function draw(c){const g=gen;if(c._g===g)return;c._g=g;const pg=await doc.getPage(c._n);if(g!==gen)return;
+    const vp=pg.getViewport({scale:fit()*zoom});const dpr=Math.min(2,window.devicePixelRatio||1);
+    if(c._task){try{c._task.cancel();}catch(e){}}
+    c.width=Math.floor(vp.width*dpr);c.height=Math.floor(vp.height*dpr);c.style.width=Math.floor(vp.width)+'px';c.style.height=Math.floor(vp.height)+'px';
+    c._task=pg.render({canvasContext:c.getContext('2d'),viewport:vp,transform:dpr!==1?[dpr,0,0,dpr,0,0]:null});c._task.promise.catch(()=>{});}
+  const layout=()=>{const sc=fit()*zoom;pages.forEach(c=>{if(c._g!==gen){c.style.width=Math.floor(base.width*sc)+'px';c.style.height=Math.floor(base.height*sc)+'px';}});};
+  function setZoom(z){zoom=Math.min(5,Math.max(.25,z));zl.textContent=Math.round(zoom*100)+'%';gen++;layout();pages.forEach(c=>{io.unobserve(c);io.observe(c);});}
+  layout();pages.forEach(c=>io.observe(c));
+  let rt;const ro=new ResizeObserver(()=>{clearTimeout(rt);rt=setTimeout(()=>{if(zoom===1){gen++;layout();pages.forEach(c=>{io.unobserve(c);io.observe(c);});}},250);});ro.observe(body);
+  setStop(()=>{io.disconnect();ro.disconnect();try{doc.destroy();}catch(e){}});}
+
+/* ===================== Browser ===================== */
+function normUrl(t){t=String(t||'').trim();if(!t)return null;
+  if(/^https?:\/\//i.test(t)){try{const u=new URL(t);return /^https?:$/.test(u.protocol)?u.href:null;}catch(e){return null;}}
+  if(!/\s/.test(t)&&/^(localhost|[\w-]+(\.[\w-]+)*\.[a-z]{2,})(:\d+)?([\/?#]\S*)?$/i.test(t)){try{return new URL('https://'+t).href;}catch(e){}}return null;}
+const hostOf=(u)=>{try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return String(u||'');}};
+const searchUrl=(q)=>'https://www.google.com/search?q='+encodeURIComponent(q);
+const outLink=(href,label,cls)=>h('a',{href,target:'_blank',rel:'noopener noreferrer',class:cls||'linkbtn'},ic('out'),label);
+function brHistAdd(url){const hs=jGet('sow-br-hist',[]).filter(x=>x.url!==url);hs.unshift({url,t:Date.now()});jSet('sow-br-hist',hs.slice(0,60));}
+function mountBrowser(W,opts){
+  const st=W.state={tabs:[],cur:0};
+  const tabsEl=h('div',{class:'br-tabs',role:'tablist'}),barEl=h('div',{class:'br-bar'}),noteEl=h('div',{class:'br-note'}),viewEl=h('div',{class:'br-view'});
+  W.body.replaceChildren(h('div',{class:'br'},tabsEl,barEl,noteEl,viewEl));
+  const tab=()=>st.tabs[st.cur];const entry=(t)=>t&&t.idx>=0?t.hist[t.idx]:null;
+  const newTab=(e)=>{const t={hist:e?[e]:[],idx:e?0:-1,el:h('div',{style:'display:flex;flex-direction:column;flex:1;min-height:0'})};st.tabs.push(t);st.cur=st.tabs.length-1;viewEl.append(t.el);if(e&&e.startsWith('http'))brHistAdd(e);return t;};
+  const go=(e)=>{const t=tab();t.hist=t.hist.slice(0,t.idx+1);t.hist.push(e);t.idx=t.hist.length-1;if(e&&e.startsWith('http'))brHistAdd(e);t.shown=null;render();};
+  const label=(e)=>!e?'Nuova scheda':e.startsWith('q:')?'Ricerca: '+e.slice(2):hostOf(e);
+  const addr=h('input',{id:'br-addr',type:'text',inputmode:'url',placeholder:'Cerca su Google o scrivi un indirizzo','aria-label':'Indirizzo o ricerca',autocapitalize:'off',autocomplete:'off',spellcheck:'false',enterkeyhint:'go'});
+  const form=h('form',{role:'search'},addr);form.addEventListener('submit',e=>{e.preventDefault();const v=addr.value.trim();if(!v)return;go(normUrl(v)||('q:'+v));addr.blur();});
+  addr.addEventListener('focus',()=>addr.select());
+  const bmOf=(url)=>[...S.maps.bookmarks.entries()].find(([,b])=>b.url===url);
+  function page(t){const e=entry(t);t.el.replaceChildren();
+    if(!e){const bms=[...S.maps.bookmarks.entries()].sort((a,b)=>(a[1].created||0)-(b[1].created||0));const hs=jGet('sow-br-hist',[]).slice(0,15);
+      const goEl=(url,cls,kids)=>IN_CLAUDE?h('a',{class:cls,href:url,target:'_blank',rel:'noopener noreferrer'},kids):h('button',{class:cls,onclick:()=>go(url)},kids);
+      t.el.append(h('div',{class:'br-page'},
+        h('h3',{},'Preferiti'),bms.length?h('div',{class:'bm-grid'},bms.map(([id,b])=>h('div',{class:'bm'},goEl(b.url,'go',[h('span',{class:'tile sm',style:'background:'+(b.color||COLORS[0])+';color:#fff'},ic('globe')),h('b',{},b.name),h('small',{},hostOf(b.url))]),
+          h('div',{class:'bm-act'},h('button',{class:'ibtn'+(b.desk?' on':''),title:b.desk?'Togli dalla scrivania':'Metti sulla scrivania','aria-label':b.desk?'Togli dalla scrivania':'Metti sulla scrivania','aria-pressed':String(!!b.desk),onclick:()=>{upd('bookmarks',id,{desk:!b.desk});toast(b.desk?'Tolto dalla scrivania.':'Messo sulla scrivania.');}},ic('pin')),
+            h('button',{class:'ibtn',title:'Rinomina','aria-label':'Rinomina '+b.name,onclick:()=>{st.renaming=id;page(t);}},ic('edit')),
+            h('button',{class:'ibtn',title:'Elimina dai preferiti','aria-label':'Elimina '+b.name+' dai preferiti',onclick:()=>del('bookmarks',id)},ic('trash'))),
+          st.renaming===id?(()=>{const i=h('input',{class:'field',value:b.name,'aria-label':'Nuovo nome',style:'margin:6px'});let done=false;const ok=(sv)=>{if(done)return;done=true;st.renaming=null;const v=i.value.trim();if(sv&&v&&v!==b.name)upd('bookmarks',id,{name:v});else page(t);};
+            i.addEventListener('keydown',ev=>{if(ev.key==='Enter')ok(true);if(ev.key==='Escape')ok(false);});i.addEventListener('blur',()=>ok(true));requestAnimationFrame(()=>{i.focus();i.select();});return i;})():null))):
+          h('p',{style:'margin:0;color:var(--muted);font-size:13.5px'},'Apri un sito e premi la stella per aggiungerlo qui.'),
+        hs.length?[h('h3',{},'Visitati di recente'),h('div',{class:'hist'},hs.map(x=>goEl(x.url,'go',[ic('globe'),h('span',{},x.url.replace(/^https?:\/\//,'')),h('small',{},fmtDate(x.t))]))),
+          h('div',{},h('button',{class:'btn',onclick:()=>{jSet('sow-br-hist',[]);page(t);}},'Cancella cronologia'))]:null));return;}
+    if(e.startsWith('q:')){const q=e.slice(2);t.el.append(h('div',{class:'br-page'},h('div',{class:'br-card'},h('b',{},'Ricerca: '+q),h('span',{},'Google non permette di mostrare i risultati dentro un’altra pagina: si aprono in una nuova scheda.'),outLink(searchUrl(q),'Cerca su Google'))));return;}
+    if(IN_CLAUDE){t.el.append(h('div',{class:'br-page'},h('div',{class:'br-card'},h('span',{class:'tile',style:'background:var(--accent);color:var(--accent-fg)'},ic('globe')),h('b',{},hostOf(e)),
+      h('span',{},'Su claude.ai i siti non possono essere mostrati dentro la finestra: si aprono in una nuova scheda. Nella versione GitHub molti siti si vedono qui dentro.'),outLink(e,'Apri '+hostOf(e)))));return;}
+    let same=false;try{same=new URL(e).origin===location.origin;}catch(x){}
+    const fr=h('iframe',{src:e,title:hostOf(e),referrerpolicy:'no-referrer-when-downgrade',allow:'fullscreen; clipboard-write',
+      sandbox:'allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads allow-modals'+(same?'':' allow-same-origin')});
+    t.el.append(fr);}
+  function render(){const t=tab();const e=entry(t);
+    st.tabs.forEach((x,i)=>{x.el.hidden=i!==st.cur;});
+    if(t.shown!==e){page(t);t.shown=e;}
+    tabsEl.replaceChildren(...st.tabs.map((x,i)=>h('div',{class:'br-tab'+(i===st.cur?' cur':''),role:'tab','aria-selected':String(i===st.cur)},
+      h('button',{class:'t',title:label(entry(x)),onclick:()=>{st.cur=i;render();}},label(entry(x))),
+      h('button',{class:'ibtn',title:'Chiudi scheda','aria-label':'Chiudi scheda',onclick:()=>{x.el.remove();st.tabs.splice(i,1);if(!st.tabs.length)newTab(null);st.cur=Math.min(st.cur,st.tabs.length-1);render();}},ic('x')))),
+      h('button',{class:'ibtn',title:'Nuova scheda','aria-label':'Nuova scheda',onclick:()=>{newTab(null);render();requestAnimationFrame(()=>addr.focus());}},ic('plus')));
+    const isUrl=e&&e.startsWith('http');const bm=isUrl&&bmOf(e);
+    if(document.activeElement!==addr)addr.value=isUrl?e:(e&&e.startsWith('q:')?e.slice(2):'');
+    barEl.replaceChildren(
+      h('button',{class:'ibtn',title:'Indietro','aria-label':'Indietro',disabled:t.idx<=0,onclick:()=>{t.idx--;render();}},ic('left')),
+      h('button',{class:'ibtn',title:'Avanti','aria-label':'Avanti',disabled:t.idx>=t.hist.length-1,onclick:()=>{t.idx++;render();}},ic('right')),
+      h('button',{class:'ibtn',title:'Ricarica','aria-label':'Ricarica',onclick:()=>{t.shown=undefined;render();}},ic('reload')),
+      h('button',{class:'ibtn',title:'Pagina iniziale','aria-label':'Pagina iniziale',onclick:()=>go(null)},ic('home')),
+      form,
+      isUrl?h('button',{class:'ibtn'+(bm?' on':''),title:bm?'Togli dai preferiti':'Aggiungi ai preferiti','aria-label':bm?'Togli dai preferiti':'Aggiungi ai preferiti','aria-pressed':String(!!bm),
+        onclick:()=>{if(bm){del('bookmarks',bm[0]);toast('Tolto dai preferiti.');}else{add('bookmarks',{name:hostOf(e),url:e,desk:false,color:COLORS[Math.floor(Math.random()*COLORS.length)],created:Date.now()});toast('Aggiunto ai preferiti.');}}},ic('star')):null,
+      isUrl||(e&&e.startsWith('q:'))?h('a',{class:'ibtn',href:isUrl?e:searchUrl(e.slice(2)),target:'_blank',rel:'noopener noreferrer',title:'Apri in Chrome','aria-label':'Apri in Chrome'},ic('out')):null);
+    noteEl.hidden=!(isUrl&&!IN_CLAUDE);
+    if(!noteEl.hidden)noteEl.replaceChildren(h('span',{},'Pagina bianca o errore? Il sito non permette di essere mostrato qui.'),h('a',{href:e,target:'_blank',rel:'noopener noreferrer'},'Apri in Chrome'));
+    if(t.hist.length&&W.title!=='Browser')W.setTitle('Browser');}
+  W.onReopen=(o)=>{if(o&&o.url){const u=normUrl(o.url);if(u){const t=tab();if(!entry(t)){go(u);}else{newTab(u);render();}}}};
+  W.refresh=()=>{const ae=document.activeElement;if(ae===addr||(ae&&ae.tagName==='INPUT'&&W.body.contains(ae)))return;const t=tab();if(t&&!entry(t))t.shown=undefined;render();};
+  newTab(opts&&opts.url?normUrl(opts.url):null);render();}
 
 /* ===================== Gestione app ===================== */
 let pendingInstall=null;
 function mountAppMgr(W){
   const st=W.state={file:pendingInstall,name:'',color:COLORS[0],busy:false,prog:0,ask:null,updating:null};pendingInstall=null;
-  if(st.file)st.name=st.file.name.replace(/\.html?$/i,'');
-  const fileIn=h('input',{type:'file',accept:'.html,.htm,text/html',class:'vh',tabindex:'-1'});
+  if(st.file)st.name=st.file.name.replace(/\.(html?|zip)$/i,'');
+  const fileIn=h('input',{type:'file',accept:'.html,.htm,.zip,text/html,application/zip',class:'vh',tabindex:'-1'});
   fileIn.addEventListener('change',()=>{const f=fileIn.files[0];fileIn.value='';if(!f)return;
     if(st.updating){const id=st.updating;st.updating=null;doInstall(f,S.maps.apps.get(id),id);return;}
-    st.file=f;if(!st.name)st.name=f.name.replace(/\.html?$/i,'');W.refresh();});
+    st.file=f;if(!st.name)st.name=f.name.replace(/\.(html?|zip)$/i,'');W.refresh();});
   async function doInstall(file,meta,id){st.busy=true;st.prog=0;W.refresh(true);
     try{await installApp({file,name:meta?meta.name:st.name.trim()||file.name,color:meta?meta.color:st.color,id},p=>{st.prog=p;const b=W.body.querySelector('.prog i');if(b)b.style.width=Math.round(p*100)+'%';});
       toast(meta?'App aggiornata.':'App installata: la trovi sulla scrivania e nel menu Start.');if(!meta){st.file=null;st.name='';}}
-    catch(e){toast(e.message==='not_html'?'Il file non sembra una pagina HTML.':e.message==='local_full'?'Spazio del browser insufficiente per questa app.':'Installazione non riuscita. Controlla la connessione e riprova.');}
+    catch(e){toast(e.message==='not_html'?'Il file non contiene una pagina HTML.':e.message==='too_large_app'?'L’app è troppo grande (oltre 15 MB).':e&&e.code==='lib'?'Impossibile leggere lo .zip: controlla la connessione.':e.message==='local_full'?'Spazio del browser insufficiente per questa app.':'Installazione non riuscita. Controlla la connessione e riprova.');}
     st.busy=false;W.refresh(true);}
   W.refresh=(force)=>{const a=document.activeElement;if(!force&&a&&W.body.contains(a)&&a.tagName==='INPUT')return;
     const apps=[...S.maps.apps.entries()].sort((x,y)=>String(x[1].name).localeCompare(String(y[1].name),'it'));
     const nameIn=h('input',{class:'field',value:st.name,placeholder:'Nome dell’app','aria-label':'Nome dell’app'});nameIn.addEventListener('input',()=>st.name=nameIn.value);
     const form=h('section',{class:'am-form'},h('h3',{},'Installa app'),
-      h('div',{class:'filepick'},h('button',{class:'btn',onclick:()=>fileIn.click(),disabled:st.busy},ic('upload'),st.file?'Cambia file':'Scegli file .html'),st.file?st.file.name+' · '+fmtSize(st.file.size):'Nessun file scelto'),
+      h('div',{class:'filepick'},h('button',{class:'btn',onclick:()=>fileIn.click(),disabled:st.busy},ic('upload'),st.file?'Cambia file':'Scegli file .html o .zip'),st.file?st.file.name+' · '+fmtSize(st.file.size):'Nessun file scelto'),
       h('div',{class:'grid2'},nameIn,h('div',{class:'swatches',role:'group','aria-label':'Colore icona'},COLORS.map(c=>h('button',{class:'sw'+(c===st.color?' sel':''),style:'background:'+c,'aria-label':'Colore','aria-pressed':String(c===st.color),onclick:()=>{st.color=c;W.refresh(true);}})))),
       st.busy?h('div',{class:'prog'},h('i',{style:'width:'+Math.round(st.prog*100)+'%'})):null,
       h('div',{},h('button',{class:'btn pri',disabled:!st.file||st.busy,onclick:()=>doInstall(st.file,null,null)},ic('plus'),st.busy?'Installazione…':'Installa')));
     const list=apps.length?h('div',{class:'applist'},apps.map(([id,m])=>h('div',{class:'appcard'},appTile(id),
       h('div',{style:'min-width:0'},h('b',{},m.name),h('small',{},'Versione '+(m.ver||1)+' · '+fmtSize(m.size||0)+' · '+fmtDate(m.updated))),
-      st.ask===id?h('div',{class:'ask'},'Disinstallare?',h('button',{class:'btn dan',onclick:()=>{uninstallApp(id);st.ask=null;toast('App disinstallata.');}},'Sì'),h('button',{class:'btn',onclick:()=>{st.ask=null;W.refresh(true);}},'No'))
+      st.ask===id?h('div',{class:'ask'},'Disinstallare? Anche i dati dell’app verranno eliminati (il file originale resta intatto).',h('button',{class:'btn dan',onclick:()=>{uninstallApp(id);st.ask=null;toast('App disinstallata.');}},'Sì'),h('button',{class:'btn',onclick:()=>{st.ask=null;W.refresh(true);}},'No'))
       :h('div',{class:'acts'},h('button',{class:'btn pri',onclick:()=>openApp('run',{id})},'Apri'),
+        h('button',{class:'btn',title:'Scarica i dati salvati da questa app',onclick:async()=>{const d=await APPDATA.load(id);if(await saveFile('dati-'+m.name.replace(/[^\w\- ]+/g,'')+'-'+isoDay(new Date())+'.json',JSON.stringify(d,null,2)))toast('Dati dell’app salvati.');}},'Dati'),
         h('button',{class:'btn',title:'Sostituisci con un file più recente',disabled:st.busy,onclick:()=>{st.updating=id;fileIn.click();}},'Aggiorna'),
         h('button',{class:'ibtn',title:'Rinomina','aria-label':'Rinomina '+m.name,onclick:()=>renameApp(W,id)},ic('edit')),
         h('button',{class:'ibtn',title:'Disinstalla','aria-label':'Disinstalla '+m.name,onclick:()=>{st.ask=id;W.refresh(true);}},ic('trash'))))))
-      :h('div',{class:'empty',style:'margin:0;padding:16px 0;text-align:left'},'Nessuna app installata. Scegli un file .html (per esempio Cantieri, POS o Prezzario) e premi Installa.');
-    W.body.replaceChildren(...[roBanner(),h('div',{class:'am'},form,h('h3',{},'App installate'),list,
-      h('p',{class:'note-box'},'Ogni app si apre nella sua finestra e conserva i propri dati come prima. Le librerie esterne funzionano se caricate da cdnjs, jsDelivr, unpkg o Tailwind; gli scaricamenti e le finestre di conferma interne all’app potrebbero non comparire. Per un file aperto con “Apri con…”, l’app lo riceve se è predisposta, altrimenti lo trovi negli appunti.'),fileIn)].filter(Boolean));};
+      :h('div',{class:'empty',style:'margin:0;padding:16px 0;text-align:left'},'Nessuna app installata. Scegli un file .html (per esempio Cantieri, POS o Prezzario) oppure un .zip con una web app in più file, e premi Installa.');
+    const sName=h('input',{class:'field',id:'site-name',placeholder:'Nome (es. Agenzia Entrate)','aria-label':'Nome del sito'});
+    const sUrl=h('input',{class:'field',id:'site-url',placeholder:'Indirizzo (es. agenziaentrate.gov.it)','aria-label':'Indirizzo del sito',inputmode:'url',autocapitalize:'off',spellcheck:'false'});
+    const sites=[...S.maps.bookmarks.entries()].filter(([,b])=>b.desk).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),'it'));
+    const siteForm=h('section',{class:'am-form'},h('h3',{},'Aggiungi un sito alla scrivania'),h('div',{class:'line',style:'margin:0;display:flex;flex-wrap:wrap;gap:8px'},sName,sUrl,
+      h('button',{class:'btn pri',onclick:()=>{const u=normUrl(sUrl.value);if(!u){toast('Indirizzo non valido: scrivi per esempio comune.savona.it');sUrl.focus();return;}
+        const ex=[...S.maps.bookmarks.entries()].find(([,b])=>b.url===u);if(ex)upd('bookmarks',ex[0],{desk:true});else add('bookmarks',{name:sName.value.trim()||hostOf(u),url:u,desk:true,color:COLORS[Math.floor(Math.random()*COLORS.length)],created:Date.now()});
+        toast('Sito aggiunto alla scrivania.');sName.value='';sUrl.value='';}},ic('plus'),'Aggiungi')),
+      sites.length?h('div',{class:'applist'},sites.map(([id,b])=>h('div',{class:'appcard'},h('span',{class:'tile',style:'background:'+(b.color||COLORS[0])+';color:#fff'},ic('globe')),
+        h('div',{style:'min-width:0'},h('b',{},b.name),h('small',{},hostOf(b.url))),h('div',{class:'acts'},h('button',{class:'btn',onclick:()=>openApp('browser',{url:b.url})},'Apri'),
+        h('button',{class:'btn',onclick:()=>upd('bookmarks',id,{desk:false})},'Togli'))))):null);
+    W.body.replaceChildren(...[roBanner(),h('div',{class:'am'},form,h('h3',{},'App installate'),list,siteForm,
+      h('div',{class:'shield'},ic('shield'),h('div',{class:'note-box',style:'color:var(--fg)'},h('b',{},'Le app installate sono isolate. '),'Il file originale sul tuo dispositivo viene solo letto e copiato, mai modificato. Ogni app gira in uno spazio separato: non può leggere né cambiare i tuoi documenti, le note, le altre app o il sistema. I suoi dati restano in un archivio privato dell’app, inclusi nei backup.')),
+      h('p',{class:'note-box'},'Ogni app si apre nella sua finestra. Le librerie esterne funzionano se caricate da cdnjs, jsDelivr, unpkg o Tailwind; gli scaricamenti e le finestre di conferma interne all’app potrebbero non comparire. Per un file aperto con “Apri con…”, l’app lo riceve se è predisposta, altrimenti lo trovi negli appunti.'),fileIn)].filter(Boolean));};
   W.refresh(true);}
 function renameApp(W,id){const m=S.maps.apps.get(id);const card=[...W.body.querySelectorAll('.appcard')].find(c=>c.querySelector('b')?.textContent===m.name);if(!card)return;
   const b=card.querySelector('b');const inp=h('input',{class:'field',value:m.name,'aria-label':'Nuovo nome'});let done=false;
@@ -825,8 +1187,9 @@ function searchAll(q){q=q.trim().toLowerCase();if(!q)return[];const out=[];const
   BUILTIN.forEach(k=>{if(has(APPS[k].title)||has(APPS[k].desc))out.push({kind:'App',label:APPS[k].title,sub:APPS[k].desc,icon:ic(APPS[k].icon),open:()=>openApp(k)});});
   S.maps.apps.forEach((m,id)=>{if(has(m.name))out.push({kind:'App',label:m.name,sub:'App installata',icon:appTile(id,true),open:()=>openApp('run',{id})});});
   S.maps.fs.forEach((f,id)=>{if(isGone(id))return;const inName=has(f.name),inText=f.kind==='doc'&&has(f.content);if(!inName&&!inText)return;
-    let sub=f.kind==='folder'?'Cartella':'Documento';if(!inName&&inText){const c=String(f.content),i=c.toLowerCase().indexOf(q);sub='…'+c.slice(Math.max(0,i-20),i+40).replace(/\s+/g,' ')+'…';}
-    out.push({kind:'File',label:f.name,sub,icon:ic(f.kind==='folder'?'folder':'doc'),open:()=>{if(f.kind==='folder'){const W=openApp('files');W.state.cwd=id;W.refresh();}else openApp('editor',{id});}});});
+    let sub=f.kind==='folder'?'Cartella':f.kind==='file'?(f.ext||'file').toUpperCase()+' · '+fmtSize(f.size||0):'Documento';if(!inName&&inText){const c=String(f.content),i=c.toLowerCase().indexOf(q);sub='…'+c.slice(Math.max(0,i-20),i+40).replace(/\s+/g,' ')+'…';}
+    out.push({kind:'File',label:f.name,sub,icon:fsIcon(f),open:()=>openFs(id)});});
+  S.maps.bookmarks.forEach((b)=>{if(has(b.name)||has(b.url))out.push({kind:'Sito',label:b.name,sub:hostOf(b.url),icon:ic('globe'),open:()=>openApp('browser',{url:b.url})});});
   S.maps.notes.forEach((n)=>{if(has(n.text))out.push({kind:'Nota',label:String(n.text).split('\n')[0].slice(0,60)||'Nota',sub:'Nota',icon:ic('note'),open:()=>openApp('notes')});});
   S.maps.agenda.forEach((e)=>{if(has(e.title)){const d=new Date(e.date+'T12:00:00');out.push({kind:'Impegno',label:e.title,sub:d.getDate()+' '+MESI[d.getMonth()]+' '+d.getFullYear()+(e.time?' · '+e.time:''),icon:ic('cal'),open:()=>{const W=openApp('agenda');W.state.y=d.getFullYear();W.state.m=d.getMonth();W.state.sel=e.date;W.refresh();}});}});
   return out.slice(0,30);}
@@ -855,6 +1218,8 @@ const TOOLS=[
   {name:'leggi_documento',description:'Restituisce il testo (max 6000 caratteri) di un documento cercato per nome.',inputSchema:{type:'object',properties:{nome:{type:'string'}},required:['nome']},
    execute:({nome})=>{const n=String(nome).toLowerCase();const f=[...S.maps.fs.entries()].find(([id,x])=>x.kind==='doc'&&!isGone(id)&&x.name.toLowerCase()===n)||[...S.maps.fs.entries()].find(([id,x])=>x.kind==='doc'&&!isGone(id)&&x.name.toLowerCase().includes(n));
      if(!f)throw new Error('Documento non trovato');return String(f[1].content||'').slice(0,6000);}},
+  {name:'apri_sito',description:'Apre un sito web nel Browser del sistema (indirizzo completo o dominio, es. comune.savona.it).',inputSchema:{type:'object',properties:{indirizzo:{type:'string'}},required:['indirizzo']},
+   execute:({indirizzo})=>{const u=normUrl(String(indirizzo||''));if(!u)throw new Error('Indirizzo non valido');openApp('browser',{url:u});return'Aperto '+u;}},
   {name:'disponi_finestre',description:'Dispone le finestre aperte: "affianca" oppure "cascata".',inputSchema:{type:'object',properties:{modo:{type:'string',enum:['affianca','cascata']}},required:['modo']},
    execute:({modo})=>{arrange(modo==='cascata'?'cascade':'tile');return'Fatto';}}
 ];
@@ -888,23 +1253,34 @@ const WALLS=[['ardesia','Ardesia'],['mare','Mare'],['ulivo','Ulivo']];
 function setWall(k){desk.className='wall-'+k;lsSet('sow-wall',k);}
 async function hashPin(p){try{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('sow:'+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}catch(e){return'x'+[...('sow:'+p)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7).toString(16);}}
 const codeCache={};
-async function buildBackup(withApps){
-  await ready;const o={formato:'sistema-operativo-web',versione:1,creato:new Date().toISOString(),dati:{}};
+async function buildBackup(withApps,fileBudget){
+  await ready;const o={formato:'sistema-operativo-web',versione:1,versioneSistema:VERSIONE_SISTEMA,creato:new Date().toISOString(),dati:{}};
   for(const c of COLS)o.dati[c]=Object.fromEntries(S.maps[c]);
+  o.datiApp={};for(const id of S.maps.apps.keys()){APPDATA.flush(id);o.datiApp[id]=await APPDATA.load(id);}
   if(withApps){o.codice={};for(const[id,m]of S.maps.apps){const k=id+':'+m.ver;if(codeCache[k]==null){try{codeCache[k]=await readAppCode(id);}catch(e){continue;}}o.codice[id]=codeCache[k];}}
+  o.file={};o.fileEsclusi=[];
+  if(fileBudget){let used=0;for(const[id,f]of fsFiles().sort((a,b)=>(a[1].size||0)-(b[1].size||0))){
+    if(used+(f.size||0)>fileBudget){o.fileEsclusi.push(fullName(f));continue;}
+    try{o.file[id]={b64:await blobToB64(await FILES.blob(f.blob,f.mime)),mime:f.mime||''};used+=f.size||0;}catch(e){o.fileEsclusi.push(fullName(f));}}}
   return o;}
+const fsFiles=()=>[...S.maps.fs.entries()].filter(([,f])=>f.kind==='file'&&!f.trashed&&f.blob);
 const stamp=()=>{const d=new Date();return isoDay(d)+'_'+pad(d.getHours())+'-'+pad(d.getMinutes())+'-'+pad(d.getSeconds());};
 async function exportBackup(withApps){
-  const o=await buildBackup(withApps);
-  if(await saveFile('backup-sistema-'+stamp()+'.json',JSON.stringify(o)))toast('Backup salvato.');}
-async function importBackup(file){importBackupText(await file.text());}
-async function importBackupText(text){
+  toast('Preparazione del backup…');const o=await buildBackup(withApps,150*MB);
+  if(await saveFile('backup-sistema-'+stamp()+'.json',JSON.stringify(o)))toast(o.fileEsclusi.length?'Backup salvato. Esclusi per dimensione: '+o.fileEsclusi.join(', '):'Backup salvato.');}
+async function importBackup(file){toast('Ripristino in corso…');importBackupText(await file.text());}
+async function importBackupText(text,fromDrive){
   let o;try{o=JSON.parse(text);}catch(e){toast('Il file non è un backup valido.');return false;}
   if(!o||o.formato!=='sistema-operativo-web'||!o.dati){toast('Il file non è un backup di questo sistema.');return false;}
   let n=0;for(const c of COLS){for(const[id,v]of Object.entries(o.dati[c]||{})){
     if(c==='apps'){const code=o.codice&&o.codice[id];if(!code)continue;const ver=(v.ver||1);try{v.chunks=await writeAppCode(id,ver,code);}catch(e){continue;}}
     await put(c,id,v).catch(()=>{});n++;}}
-  toast('Ripristinati '+n+' elementi dal backup.');return true;}
+  for(const[id,d]of Object.entries(o.datiApp||{})){if(d&&typeof d==='object'){try{await APPDATA.replace(id,d);n++;}catch(e){}}}
+  let nf=0,mf=0;
+  for(const[id,x]of Object.entries(o.file||{})){try{const ref=await FILES.store(b64ToBlob(x.b64,x.mime));await upd('fs',id,{blob:ref});nf++;}catch(e){mf++;}}
+  if(fromDrive)for(const[id,did]of Object.entries(o.fileDrive||{})){if(o.file&&o.file[id])continue;const cur=S.maps.fs.get(id);if(cur&&await FILES.has(cur.blob))continue;
+    try{const b=await DRIVE.downloadBlob(did,cur&&cur.mime);const ref=await FILES.store(b);await upd('fs',id,{blob:ref});nf++;}catch(e){mf++;}}
+  toast('Ripristinati '+n+' elementi'+(nf?' e '+nf+' file':'')+' dal backup.'+(mf?' '+mf+' file non recuperati.':''));return true;}
 
 /* ===================== Backup automatico su Google Drive ===================== */
 const GD={cfg:jGet('sow-drive',{}),busy:false,timer:null,lastHash:lsGet('sow-drive-hash',''),status:''};
@@ -930,6 +1306,14 @@ const DRIVE_MCP={
     if(fa)input.base64Content={$file:{data:new Blob([json],{type:'application/json'}),name:'backup.json',type:'application/json'}};
     else{if(new Blob([json]).size>900000)throw{code:'too_large'};input.textContent=json;}
     await m.callTool('Google Drive','create_file',input,{cache:false});},
+  async uploadBlob(name,blob,mime,folder){const m=await this.m();let fa=false;try{fa=!!(await m.listTools()).fileArgs;}catch(e){}
+    const input={title:name,parentId:folder,contentMimeType:mime||'application/octet-stream',disableConversionToGoogleType:true};
+    if(fa){if(blob.size>16*MB)throw{code:'too_large'};input.base64Content={$file:{data:blob,name:'file.'+(extOf(name)||'bin'),type:mime||'application/octet-stream'}};}
+    else{if(blob.size>600000)throw{code:'too_large'};input.base64Content=await blobToB64(blob);}
+    const r=await m.callTool('Google Drive','create_file',input,{cache:false});const p=r.payload||{};return p.id||(p.file&&p.file.id)||null;},
+  async downloadBlob(id,mime){const p=await this.call('download_file_content',{fileId:id});let b=null;
+    if(typeof p==='string')b=p;else if(p&&typeof p==='object'){for(const k of['content','data','base64Content','contents','body']){if(typeof p[k]==='string'){b=p[k];break;}}if(!b){for(const v of Object.values(p))if(typeof v==='string'&&(!b||v.length>b.length))b=v;}}
+    if(!b)throw{code:'bad_download'};return b64ToBlob(b,mime);},
   async list(folder){const p=await this.call('search_files',{query:"parentId = '"+qEsc(folder)+"' and title contains 'backup-sistema-' and trashed = false",pageSize:100,excludeContentSnippets:true});
     return((p&&p.files)||[]).map(f=>({id:f.id,name:f.title||f.name,time:f.createdTime})).sort((a,b)=>String(b.name).localeCompare(String(a.name)));},
   trash(id){return this.call('trash_file',{fileId:id});},
@@ -949,6 +1333,10 @@ const DRIVE_G={tok:null,exp:0,
       tc.requestAccessToken({prompt:lsGet('sow-g-ok','')?'':'consent'});});},
   async api(method,url,body,headers){const t=await this.token(false);const r=await fetch(url,{method,headers:Object.assign({Authorization:'Bearer '+t},headers||{}),body});
     if(r.status===401){this.tok=null;throw{code:'auth'};}if(r.status===404)throw{code:'not_found'};if(!r.ok)throw{code:'http',status:r.status};return r;},
+  async uploadBlob(name,blob,mime,folder){const b='sow'+uid();const meta={name,parents:[folder],mimeType:mime||'application/octet-stream'};
+    const body=new Blob(['--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(meta)+'\r\n--'+b+'\r\nContent-Type: '+(mime||'application/octet-stream')+'\r\n\r\n',blob,'\r\n--'+b+'--'],{type:'multipart/related; boundary='+b});
+    const r=await this.api('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',body,{'Content-Type':'multipart/related; boundary='+b});return (await r.json()).id;},
+  async downloadBlob(id){const r=await this.api('GET','https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(id)+'?alt=media');return r.blob();},
   async upload(name,json,folder){const b='sow'+uid();const meta={name,parents:[folder],mimeType:'application/json'};
     const body=new Blob(['--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(meta)+'\r\n--'+b+'\r\nContent-Type: application/json\r\n\r\n',json,'\r\n--'+b+'--'],{type:'multipart/related; boundary='+b});
     await this.api('POST','https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',body,{'Content-Type':'multipart/related; boundary='+b});},
@@ -986,7 +1374,18 @@ subs.add(gdSchedule);
 async function gdRun(manual){
   if(GD.busy||!GD.cfg.folderId)return;const sig=dataSig();if(!manual&&sig===GD.lastHash)return;
   GD.busy=true;GD.status='Backup in corso…';gdRefreshUI();
-  try{const o=await buildBackup(true);await DRIVE.upload('backup-sistema-'+stamp()+'.json',JSON.stringify(o),GD.cfg.folderId);
+  try{const o=await buildBackup(true,0);
+    /* I file (PDF, foto…) vanno su Drive una volta sola; il backup ne tiene il riferimento */
+    const sent=GD.cfg.sent||{};const liveIds=new Set();const MAXF=IN_CLAUDE?16*MB:100*MB;
+    for(const[id,f]of fsFiles()){liveIds.add(id);const fsig=JSON.stringify(f.blob);if(sent[id]&&sent[id].sig===fsig)continue;
+      if((f.size||0)>MAXF){o.fileEsclusi.push(fullName(f));continue;}
+      try{GD.status='Invio di '+fullName(f)+' su Drive…';gdRefreshUI();const blob=await FILES.blob(f.blob,f.mime);
+        const did=await DRIVE.uploadBlob('file-sistema-'+id+'-'+fullName(f).replace(/[\\/:*?"<>|]+/g,'_'),blob,f.mime||blob.type,GD.cfg.folderId);
+        if(did){if(sent[id])DRIVE.trash(sent[id].id).catch(()=>{});sent[id]={id:did,sig:fsig};GD.cfg.sent=sent;gdSave();}}catch(e){o.fileEsclusi.push(fullName(f));}}
+    for(const k of Object.keys(sent))if(!liveIds.has(k)){DRIVE.trash(sent[k].id).catch(()=>{});delete sent[k];}
+    GD.cfg.sent=sent;gdSave();o.fileDrive=Object.fromEntries(Object.entries(sent).map(([k,v])=>[k,v.id]));GD.status='Backup in corso…';gdRefreshUI();
+    await DRIVE.upload('backup-sistema-'+stamp()+'.json',JSON.stringify(o),GD.cfg.folderId);
+    GD.cfg.excluded=o.fileEsclusi;
     GD.cfg.last=Date.now();GD.cfg.lastErr='';gdSave();GD.lastHash=sig;lsSet('sow-drive-hash',sig);
     try{const list=await DRIVE.list(GD.cfg.folderId);for(const f of list.slice(GD_KEEP))await DRIVE.trash(f.id).catch(()=>{});}catch(e){}
     if(manual)toast('Backup salvato su Google Drive.');}
@@ -1002,11 +1401,11 @@ function driveSection(W){
     const key=h('input',{class:'field',id:'g-key',value:g.apiKey||'',placeholder:'Chiave API','aria-label':'Chiave API di Google',autocomplete:'off',style:'flex:1 1 200px'});
     out.push(h('p',{},g.clientId?'Codici di Google inseriti.':'Serve una registrazione gratuita su Google Cloud, una volta sola. I passaggi sono nel file README, sezione “Backup su Google Drive”.'),
       h('div',{class:'line'},cid,key,h('button',{class:'btn',onclick:()=>{jSet('sow-gcfg',{clientId:cid.value.trim(),apiKey:key.value.trim()});DRIVE_G.tok=null;DRIVE_G.preload();toast('Codici salvati.');W.refresh(true);}},'Salva codici')));}
-  out.push(h('p',{},c.folderId?('Cartella: '+(c.folderName||'scelta')+' · '+(c.off?'in pausa':'attivo, salva qualche secondo dopo ogni modifica (al massimo ogni 10 minuti)')+' · ultimo backup: '+(c.last?fmtDate(c.last):'non ancora')+' · tiene le ultime 10 copie, app comprese.'):'Scegli la cartella di Drive dove salvare i backup.'));
+  out.push(h('p',{},c.folderId?('Cartella: '+(c.folderName||'scelta')+' · '+(c.off?'in pausa':'attivo, salva qualche secondo dopo ogni modifica (al massimo ogni 10 minuti)')+' · ultimo backup: '+(c.last?fmtDate(c.last):'non ancora')+' · tiene le ultime 10 copie, app comprese; PDF, foto e altri file vengono inviati una sola volta.'+(c.excluded&&c.excluded.length?' Non inviati perché troppo grandi: '+c.excluded.join(', ')+'.':'')):'Scegli la cartella di Drive dove salvare i backup.'));
   if(GD.status)out.push(h('p',{style:'color:var(--accent)'},GD.status));
   if(c.lastErr&&!GD.status)out.push(h('p',{style:'color:var(--danger)'},c.lastErr));
   const choose=async()=>{if(IN_CLAUDE){st.browse={path:[{id:'root',name:'Il mio Drive'}],items:null,err:''};loadFolders(W);W.refresh(true);return;}
-    try{const f=await DRIVE_G.pickFolder();if(f){GD.cfg.folderId=f.id;GD.cfg.folderName=f.name;GD.cfg.lastErr='';GD.cfg.off=false;gdSave();GD.lastHash='';toast('Cartella scelta: '+f.name+'.');gdRun(true);}}
+    try{const f=await DRIVE_G.pickFolder();if(f){GD.cfg.folderId=f.id;GD.cfg.folderName=f.name;GD.cfg.sent={};GD.cfg.lastErr='';GD.cfg.off=false;gdSave();GD.lastHash='';toast('Cartella scelta: '+f.name+'.');gdRun(true);}}
     catch(e){toast(gdErr(e));}W.refresh(true);};
   const btns=[h('button',{class:'btn'+(c.folderId?'':' pri'),onclick:choose},ic('folder'),c.folderId?'Cambia cartella':'Scegli cartella')];
   if(c.folderId)btns.push(h('button',{class:'btn',disabled:GD.busy,onclick:()=>gdRun(true)},ic('upload'),'Esegui ora'),
@@ -1018,7 +1417,7 @@ function driveSection(W){
       h('div',{class:'crumbs'},b.path.map((p,i)=>[i?h('span',{'aria-hidden':'true',style:'color:var(--muted)'},'›'):null,h('button',{onclick:()=>{b.path=b.path.slice(0,i+1);loadFolders(W);}},p.name)])),
       b.err?h('p',{style:'color:var(--danger)'},b.err):b.items==null?h('p',{},'Caricamento cartelle…'):
         b.items.length?h('div',{class:'rows',style:'padding:0;max-height:220px;overflow:auto'},b.items.map(f=>h('div',{class:'row',style:'grid-template-columns:28px minmax(0,1fr)'},h('span',{class:'ic'},ic('folder')),h('button',{class:'nm',onclick:()=>{b.path.push(f);loadFolders(W);}},f.name)))):h('p',{},'Nessuna sottocartella.'),
-      h('div',{class:'line',style:'margin:0'},h('button',{class:'btn pri',onclick:()=>{GD.cfg.folderId=cur.id;GD.cfg.folderName=cur.name;GD.cfg.lastErr='';GD.cfg.off=false;gdSave();GD.lastHash='';st.browse=null;toast('Cartella scelta: '+cur.name+'.');gdRun(true);W.refresh(true);}},'Usa “'+cur.name+'”'),
+      h('div',{class:'line',style:'margin:0'},h('button',{class:'btn pri',onclick:()=>{GD.cfg.folderId=cur.id;GD.cfg.folderName=cur.name;GD.cfg.sent={};GD.cfg.lastErr='';GD.cfg.off=false;gdSave();GD.lastHash='';st.browse=null;toast('Cartella scelta: '+cur.name+'.');gdRun(true);W.refresh(true);}},'Usa “'+cur.name+'”'),
         h('button',{class:'btn',onclick:()=>{st.browse=null;W.refresh(true);}},'Annulla')),
       h('p',{class:'note-box'},'Per una cartella nuova, creala prima in Google Drive e poi aggiorna questo elenco riaprendolo.')));}
   if(st.restore){const r=st.restore;
@@ -1027,7 +1426,7 @@ function driveSection(W){
       h('div',{class:'rows',style:'padding:0'},r.items.map(f=>h('div',{class:'row',style:'grid-template-columns:28px minmax(0,1fr) auto'},h('span',{class:'ic doc'},ic('doc')),
         h('span',{class:'nm',style:'cursor:default'},f.name.replace('backup-sistema-','').replace('.json','').replace('_',' ore ').replace(/-(\d\d)-(\d\d)$/,':$1:$2')),
         r.ask===f.id?h('div',{class:'ask'},'Ripristinare?',h('button',{class:'btn dan',onclick:async()=>{r.ask=null;GD.status='Ripristino in corso…';W.refresh(true);
-            try{const txt=await DRIVE.download(f.id);await importBackupText(txt);}catch(e){toast(gdErr(e));}GD.status='';st.restore=null;W.refresh(true);}},'Sì'),h('button',{class:'btn',onclick:()=>{r.ask=null;W.refresh(true);}},'No'))
+            try{const txt=await DRIVE.download(f.id);await importBackupText(txt,true);}catch(e){toast(gdErr(e));}GD.status='';st.restore=null;W.refresh(true);}},'Sì'),h('button',{class:'btn',onclick:()=>{r.ask=null;W.refresh(true);}},'No'))
         :h('button',{class:'btn',onclick:()=>{r.ask=f.id;W.refresh(true);}},'Ripristina')))),
       h('div',{class:'line',style:'margin:0'},h('button',{class:'btn',onclick:()=>{st.restore=null;W.refresh(true);}},'Chiudi'))));}
   if(IN_CLAUDE)out.push(h('p',{class:'note-box',style:'margin-top:8px'},'La cartella si sceglie una volta per ogni dispositivo. Al primo uso claude.ai chiede il permesso di usare Google Drive.'));
@@ -1054,7 +1453,7 @@ function mountSettings(W){
           hasPin?h('button',{class:'btn dan',onclick:()=>{lsDel('sow-pin');toast('PIN rimosso.');W.refresh(true);}},'Rimuovi'):null),
         hasPin?h('div',{class:'line'},h('span',{style:'font-size:13.5px'},'Blocco automatico'),autoSel,h('button',{class:'btn',onclick:lockNow},ic('lock'),'Blocca ora')):null),
       driveSection(W),
-      h('section',{},h('h3',{},'Backup su file'),h('p',{},'Salva tutto in un unico file (documenti, note, agenda, elenco app) o ripristina da un file salvato. Il ripristino aggiunge e sovrascrive, non cancella.'),
+      h('section',{},h('h3',{},'Backup su file'),h('p',{},'Salva tutto in un unico file (documenti, note, agenda, app, PDF, foto e altri file fino a 150 MB complessivi) o ripristina da un file salvato. Il ripristino aggiunge e sovrascrive, non cancella.'),
         h('div',{class:'line'},h('button',{class:'btn',onclick:()=>exportBackup(false)},ic('down'),'Salva backup'),h('button',{class:'btn',onclick:()=>exportBackup(true)},ic('down'),'Backup con codice app'),h('button',{class:'btn',onclick:()=>bk.click()},ic('upload'),'Ripristina'))),
       h('section',{},h('h3',{},'Salvataggio e permessi'),h('dl',{class:'kv'},
         h('dt',{},'Modalità'),h('dd',{},modo),h('dt',{},'Il tuo accesso'),h('dd',{},roleLabel()),
@@ -1063,9 +1462,25 @@ function mountSettings(W){
         h('p',{style:'margin-top:10px'},S.mode==='local'
           ?(IN_CLAUDE?'Ora i dati restano in questo browser. Aprendo la scrivania da claude.ai con il tuo account si salvano online e sono gli stessi su PC e tablet.':'I dati restano in questo browser, su questo dispositivo. Per portarli su un altro dispositivo usa Salva backup qui e Ripristina sull’altro. Fai un backup ogni tanto: se cancelli i dati del browser, si perdono.')
           :'I dati sono online e uguali su ogni dispositivo. Per dare accesso ad altri usa il pulsante Condividi della pagina: “Collaboratore” può modificare, “Visualizzatore” può solo consultare. Sfondo, PIN e posizione delle finestre restano scelte del singolo dispositivo.')),
+      h('section',{},h('h3',{},'Informazioni'),h('dl',{class:'kv'},h('dt',{},'Versione'),h('dd',{},VERSIONE_SISTEMA),h('dt',{},'Edizione'),h('dd',{},IN_CLAUDE?'claude.ai':'GitHub'))),
       h('section',{},h('h3',{},'Scorciatoie'),h('dl',{class:'kv'},h('dt',{},'Alt + Q'),h('dd',{},'Passa alla finestra successiva'),h('dt',{},'Alt + 1…4'),h('dd',{},'Cambia scrivania'),h('dt',{},'Alt + Spazio'),h('dd',{},'Apre Start e la ricerca'),h('dt',{},'Trascina ai bordi'),h('dd',{},'Metà schermo, angoli, schermo intero in alto'))),
       bk));};
   W.refresh(true);}
+
+/* ===================== Aiuto ===================== */
+function mountHelp(W){W.refresh=()=>{};
+  W.body.replaceChildren(h('div',{class:'help'},
+    h('section',{},h('h3',{},'Versione'),h('div',{class:'ver'},h('b',{},VERSIONE_SISTEMA),h('span',{style:'color:var(--muted)'},'edizione '+(IN_CLAUDE?'claude.ai':'GitHub')+' · '+NOVITA[0][1]))),
+    h('section',{},h('h3',{},'Novità'),NOVITA.map(([v,d,list],i)=>h('div',{class:'rel'+(i===0?' cur':'')},h('header',{},'Versione '+v,h('span',{},d)),h('ul',{},list.map(x=>h('li',{},x)))))),
+    h('section',{},h('h3',{},'Sicurezza delle app installate'),h('div',{class:'shield'},ic('shield'),h('p',{style:'color:var(--fg)'},'Il file originale viene solo letto e copiato, mai modificato. Ogni app gira isolata: non vede né cambia documenti, note, agenda, altre app o il sistema. I suoi dati stanno in un archivio privato, inclusi nei backup e scaricabili da Gestione app › Dati.'))),
+    h('section',{},h('h3',{},'Guida rapida'),h('ul',{style:'margin:0;padding-left:18px'},
+      h('li',{},'Installa le tue app: Gestione app › Scegli file .html o .zip › Installa.'),
+      h('li',{},'Browser: scrivi un indirizzo o una ricerca. La stella aggiunge ai preferiti, la puntina mette il sito sulla scrivania. Se un sito resta bianco, premi “Apri in Chrome”.'),
+      h('li',{},'File: Esplora file › Carica, oppure trascinali sulla scrivania. PDF, immagini, video, audio, Excel, CSV e Word si aprono direttamente.'),
+      h('li',{},'Icone: trascinale dove vuoi. Per rimetterle in ordine: menu Start › Riordina icone.'),
+      h('li',{},'Finestre: trascina la barra del titolo; ai bordi diventano metà schermo, in alto schermo intero. Il pulsante ⋯ offre “Sempre in primo piano” e le 4 scrivanie.'),
+      h('li',{},'Cerca qualsiasi cosa dal menu Start (Alt + Spazio).'),
+      h('li',{},'Backup automatico su Google Drive: Impostazioni › Backup automatico.')))));}
 
 /* ===================== Blocco schermo ===================== */
 let entered='';const lockEl=$('#lock');
@@ -1100,10 +1515,33 @@ $('#bell').addEventListener('click',e=>{e.stopPropagation();closeStart();const p
 /* ===================== Scrivania: icone e widget ===================== */
 let iconSig='';
 function renderIcons(){const apps=[...S.maps.apps.entries()].sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),'it'));
-  const sig=apps.map(([id,m])=>id+m.name+m.color).join('|');if(sig===iconSig&&$('#icons').children.length)return;iconSig=sig;
-  const builtinIcons=BUILTIN.map(k=>h('button',{class:'dicon',onclick:()=>openApp(k)},h('span',{class:'tile'},ic(APPS[k].icon)),h('span',{class:'lbl'},APPS[k].title)));
-  const appIcons=apps.map(([id,m])=>h('button',{class:'dicon',onclick:()=>openApp('run',{id})},appTile(id),h('span',{class:'lbl'},m.name)));
-  $('#icons').replaceChildren(...appIcons,...builtinIcons);}
+  const sites=[...S.maps.bookmarks.entries()].filter(([,b])=>b.desk).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),'it'));
+  const sig=apps.map(([id,m])=>id+m.name+m.color).join('|')+'#'+sites.map(([id,b])=>id+b.name+b.color).join('|');if(sig===iconSig&&$('#icons').children.length)return;iconSig=sig;
+  const mk=(key,label,tile,open)=>{const b=h('button',{class:'dicon','data-k':key,title:label},tile,h('span',{class:'lbl'},label));iconDrag(b,key,open);return b;};
+  const builtinIcons=BUILTIN.map(k=>mk(k,APPS[k].title,h('span',{class:'tile'},ic(APPS[k].icon)),()=>openApp(k)));
+  const appIcons=apps.map(([id,m])=>mk('app:'+id,m.name,appTile(id),()=>openApp('run',{id})));
+  const siteIcons=sites.map(([id,b])=>mk('bm:'+id,b.name,h('span',{class:'tile',style:'background:'+(b.color||COLORS[0])+';color:#fff'},ic('globe')),()=>openApp('browser',{url:b.url})));
+  $('#icons').replaceChildren(...appIcons,...siteIcons,...builtinIcons);placeIcons();}
+/* Posizione libera delle icone, ricordata su ogni dispositivo */
+const ICON_W=88,ICON_H=98;
+function placeIcons(){const box=$('#icons');const dw=desk.clientWidth,dh=desk.clientHeight;if(!dw||!dh)return;
+  const pos=jGet('sow-iconpos',{});const left=Math.max(16,(window.innerWidth>0?0:0)+16);
+  const taken=[];const els=[...box.children];
+  els.forEach(el=>{const p=pos[el.dataset.k];if(p){const x=Math.min(Math.max(0,p.x*dw),dw-ICON_W),y=Math.min(Math.max(0,p.y*dh),dh-ICON_H);el.style.left=x+'px';el.style.top=y+'px';taken.push([x,y]);}});
+  const free=(x,y)=>!taken.some(([a,b])=>Math.abs(a-x)<ICON_W-10&&Math.abs(b-y)<ICON_H-10);
+  let col=0,row=0;const rows=Math.max(1,Math.floor((dh-16)/(ICON_H+4)));
+  els.forEach(el=>{if(pos[el.dataset.k])return;let x,y,g=0;do{x=left+col*(ICON_W+6);y=16+row*(ICON_H+4);row++;if(row>=rows){row=0;col++;}}while(!free(x,y)&&g++<400);
+    el.style.left=x+'px';el.style.top=y+'px';taken.push([x,y]);});}
+function iconDrag(el,key,open){
+  el.addEventListener('pointerdown',e=>{if(e.button!==0)return;const sx=e.clientX,sy=e.clientY,l=el.offsetLeft,t=el.offsetTop;let moved=false;
+    el.setPointerCapture(e.pointerId);
+    const mv=ev=>{const dx=ev.clientX-sx,dy=ev.clientY-sy;if(!moved&&Math.hypot(dx,dy)<6)return;moved=true;el.classList.add('drag');
+      el.style.left=Math.max(0,Math.min(desk.clientWidth-ICON_W,l+dx))+'px';el.style.top=Math.max(0,Math.min(desk.clientHeight-ICON_H,t+dy))+'px';};
+    const up=()=>{el.removeEventListener('pointermove',mv);el.removeEventListener('pointerup',up);el.removeEventListener('pointercancel',up);el.classList.remove('drag');
+      if(moved){const pos=jGet('sow-iconpos',{});pos[key]={x:el.offsetLeft/desk.clientWidth,y:el.offsetTop/desk.clientHeight};jSet('sow-iconpos',pos);el._skip=true;}};
+    el.addEventListener('pointermove',mv);el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);});
+  el.addEventListener('click',e=>{if(el._skip){el._skip=false;e.preventDefault();return;}open();});}
+function resetIcons(){lsDel('sow-iconpos');placeIcons();toast('Icone riordinate.');}
 function renderWidgets(){const d=new Date(),today=isoDay(d),end=isoDay(new Date(d.getFullYear(),d.getMonth(),d.getDate()+7));
   const ev=nextEvents(today,end).filter(e=>e.date>today||!e.time||e.time>=pad(d.getHours())+':'+pad(d.getMinutes())).slice(0,5);
   const pins=[...S.maps.notes.values()].filter(n=>n.pinned&&n.text).sort((a,b)=>(b.created||0)-(a.created||0)).slice(0,3);
@@ -1123,16 +1561,19 @@ function renderStart(){
       r.forEach((x,i)=>res.append(h('button',{class:'sitem'+(i===sIdx?' hl':''),role:'menuitem',onclick:()=>{closeStart();x.open();}},x.icon,h('div',{},x.label,h('small',{},x.kind+' · '+x.sub)))));return;}
     const apps=[...S.maps.apps.entries()].sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),'it'));
     if(apps.length){res.append(h('h2',{},'Le mie app'));apps.forEach(([id,m])=>res.append(h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();openApp('run',{id});}},appTile(id,true),h('div',{},m.name,h('small',{},'Versione '+(m.ver||1))))));}
+    const sites=[...S.maps.bookmarks.entries()].filter(([,b])=>b.desk).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name),'it'));
+    if(sites.length){res.append(h('h2',{},'Siti'));sites.forEach(([id,b])=>res.append(h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();openApp('browser',{url:b.url});}},h('span',{class:'tile sm',style:'background:'+(b.color||COLORS[0])+';color:#fff'},ic('globe')),h('div',{},b.name,h('small',{},hostOf(b.url))))));}
     res.append(h('h2',{},'Sistema'));BUILTIN.forEach(k=>res.append(h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();openApp(k);}},ic(APPS[k].icon),h('div',{},APPS[k].title,h('small',{},APPS[k].desc)))));
     res.append(h('h2',{},'Finestre'),
       h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();arrange('tile');}},ic('tile'),h('div',{},'Affianca finestre',h('small',{},'Divide lo schermo tra le finestre aperte'))),
       h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();arrange('cascade');}},ic('layers'),h('div',{},'Sovrapponi a cascata',h('small',{},'Allinea le finestre una sull’altra'))),
+      h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();resetIcons();}},ic('grid'),h('div',{},'Riordina icone',h('small',{},'Rimette le icone della scrivania in colonna'))),
       h('button',{class:'sitem',role:'menuitem',onclick:()=>{closeStart();wins.filter(w=>w.desk===curDesk).forEach(w=>{w.min=true;vis(w);});active=null;renderTasks();}},ic('min'),h('div',{},'Mostra scrivania',h('small',{},'Riduce tutte le finestre'))));};
   inp.addEventListener('input',()=>{sIdx=0;fill();});
   inp.addEventListener('keydown',e=>{const items=res.querySelectorAll('.sitem');if(e.key==='ArrowDown'){e.preventDefault();sIdx=Math.min(items.length-1,sIdx+1);fill();}
     else if(e.key==='ArrowUp'){e.preventDefault();sIdx=Math.max(0,sIdx-1);fill();}else if(e.key==='Enter'&&sq.trim()){const it=res.querySelectorAll('.sitem')[sIdx];if(it)it.click();}});
-  const who=h('div',{class:'who'},U.avatar?h('img',{src:U.avatar,alt:''}):h('span',{class:'tile sm'},ic('grid')),h('div',{},h('b',{},U.name||'Sistema Operativo Web'),h('small',{},roleLabel())));
-  const foot=h('div',{class:'panel-foot'},h('button',{class:'btn',onclick:()=>{closeStart();openApp('settings');}},ic('gear'),'Impostazioni'),
+  const who=h('div',{class:'who'},U.avatar?h('img',{src:U.avatar,alt:''}):h('span',{class:'tile sm'},ic('grid')),h('div',{},h('b',{},U.name||'Sistema Operativo Web'),h('small',{},roleLabel()+' · versione '+VERSIONE_SISTEMA)));
+  const foot=h('div',{class:'panel-foot'},h('button',{class:'btn',onclick:()=>{closeStart();openApp('settings');}},ic('gear'),'Impostazioni'),h('button',{class:'btn',onclick:()=>{closeStart();openApp('help');}},ic('help'),'Aiuto'),
     lsGet('sow-pin','')?h('button',{class:'btn',onclick:lockNow},ic('lock'),'Blocca'):null);
   const focused=document.activeElement&&sm.contains(document.activeElement)&&document.activeElement.type==='search';
   sm.replaceChildren(who,h('div',{class:'sbox'},inp),res,foot);fill();if(focused){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
@@ -1164,7 +1605,7 @@ function tick(){const d=new Date();$('#clock b').textContent=pad(d.getHours())+'
   if(d.getMinutes()!==lastMin){lastMin=d.getMinutes();renderWidgets();if(!lockEl.hidden&&!entered)renderLock();if(S.mode!=='loading')checkReminders();}
   const al=+lsGet('sow-autolock','0');if(al&&lsGet('sow-pin','')&&lockEl.hidden&&Date.now()-lastAct>al*60000)lockNow();}
 setInterval(tick,5000);
-window.addEventListener('resize',()=>{if(narrow.matches)return;wins.forEach(W=>{if(!W.el.classList.contains('max'))setRect(W.el,W.el.offsetLeft,W.el.offsetTop,W.el.offsetWidth,W.el.offsetHeight);});});
+window.addEventListener('resize',()=>{placeIcons();wins.forEach(W=>{if(!W.el.classList.contains('max'))setRect(W.el,W.el.offsetLeft,W.el.offsetTop,W.el.offsetWidth,W.el.offsetHeight);});});
 
 setWall(lsGet('sow-wall','ardesia'));renderDesks();renderBell();renderSync();renderIcons();tick();
 if(lsGet('sow-pin',''))lockNow();

@@ -1,4 +1,14 @@
-# Sistema Operativo Web
+# Sistema Operativo Web — versione 1.4
+
+| Versione | Data | Novità |
+|---|---|---|
+| 1.4 | 04/11/2026 | Browser con schede, preferiti e siti sulla scrivania; caricamento di qualsiasi file con visualizzatori per PDF, immagini, video, audio, Excel, CSV e Word; app web da .zip; backup su Drive anche dei file |
+| 1.3 | 03/11/2026 | Menu Aiuto con versione e novità; icone libere sulla scrivania; finestre flottanti su ogni schermo e “sempre in primo piano”; app installate isolate con dati privati |
+| 1.2 | 03/11/2026 | Backup automatico su Google Drive nella cartella scelta, ripristino da Drive |
+| 1.1 | 03/11/2026 | Versione per GitHub: installabile come app, funziona offline, app salvate senza limite di spazio |
+| 1.0 | 03/11/2026 | Prima versione: scrivania, finestre, app installabili, file, note, agenda, ricerca, PIN, backup su file |
+
+La versione in uso e le novità si leggono in **Aiuto** (menu Start), oltre che in Impostazioni › Informazioni.
 
 Scrivania nel browser con finestre, app installabili, file, note, agenda, calcolatrice e backup.
 Funziona su PC e tablet e si può aggiungere alla schermata Home come un'app.
@@ -32,7 +42,7 @@ Funziona su PC e tablet e si può aggiungere alla schermata Home come un'app.
 ## Aggiornare
 
 Carica il nuovo `index.html` con **Add file › Upload files** (sostituisce il vecchio).
-Carica anche il nuovo `sw.js` se è nel pacchetto; altrimenti aprilo su GitHub, premi la matita e aumenta il numero in `sistema-os-v2` (v3, v4… ogni volta): così tablet e PC prendono subito la versione nuova.
+Carica anche il nuovo `sw.js` (contiene il numero di versione, es. `sistema-os-1.4`): così tablet e PC prendono subito la versione nuova. Se nel pacchetto non c'è, aprilo su GitHub, premi la matita e scrivi il nuovo numero di versione.
 
 ## Dove restano i dati
 
@@ -90,9 +100,20 @@ Su ogni dispositivo (PC, tablet) i codici e la cartella vanno inseriti una volta
 - **Metti in pausa / Riprendi**: sospende i backup automatici.
 - L'accesso a Google dura circa un'ora e si rinnova da solo al primo tocco sullo schermo. Se un backup non riesce compare un avviso nella campanella: premi **Esegui ora**.
 
+## File
+
+**Esplora file › Carica**, oppure trascina i file sulla scrivania. Si aprono direttamente: PDF, immagini, video, audio, Excel (.xlsx), CSV e Word (.docx, in sola lettura). Gli altri tipi (es. .dwg) vengono conservati e si possono riscaricare. Limite per file: 300 MB, secondo lo spazio libero del dispositivo.
+I visualizzatori di PDF, Excel e Word si scaricano da internet al primo uso; poi funzionano anche offline.
+
+## Browser
+
+Scrivi un indirizzo o una ricerca. La stella salva tra i preferiti, la puntina mette il sito sulla scrivania. Molti siti (Google, banche, Gmail, Amazon…) non permettono di essere mostrati dentro un'altra pagina: restano bianchi. In quel caso premi **Apri in Chrome**.
+
 ## Le tue app
 
-**Gestione app › Scegli file .html › Installa.** L'app compare sulla scrivania e nel menu Start, si apre in una sua finestra e conserva i propri dati come prima. In questa versione non ci sono limiti sulle librerie esterne che le app usano.
+**Gestione app › Scegli file .html o .zip › Installa.** Lo .zip serve per le web app in più file (index.html con cartelle css, js, immagini): tutto viene riunito in un'unica app. L'app compare sulla scrivania e nel menu Start e si apre in una sua finestra. In questa versione non ci sono limiti sulle librerie esterne che le app usano.
+
+**Sicurezza:** il file originale viene solo letto e copiato, mai modificato. Ogni app gira in uno spazio isolato: non può leggere né cambiare documenti, note, agenda, altre app o il sistema. I dati che l'app salva finiscono in un archivio privato dell'app, inclusi nei backup e scaricabili con **Gestione app › Dati**. Se un'app salva i dati in modo diverso dal solito e non li ritrova, segnalalo per adattarla.
 
 ## Scorciatoie
 
